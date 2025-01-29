@@ -18,11 +18,8 @@ class StatusControllerTest {
 
     @Test
     fun getStatus_shouldReturnOk() {
-        val result = mockMvc.perform(get("/api/status"))
+        mockMvc.perform(get("/api/status"))
             .andExpect(status().isOk)
-            .andReturn()
-
-        val content = result.response.contentAsString
-        assertTrue(content.isNotEmpty())  // the content is different in the CI
+            .andExpect { assertTrue(it.response.contentAsString.isNotEmpty()) }
     }
 }
