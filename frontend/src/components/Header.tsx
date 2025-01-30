@@ -2,6 +2,7 @@ export default function Header() {
 
     const navLinks = [
         {name: "Feed", path: "/feed"},
+        {name: "Profile", path: "/user/alice_jones"},  // TODO: replace with actual username from oauth
     ];
 
     return (
