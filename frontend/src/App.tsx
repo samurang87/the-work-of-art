@@ -13,7 +13,7 @@ function App() {
                 <Routes>
                     <Route path={"/"} element={<Feed/>}/>
                     <Route path={"/feed"} element={<Feed/>}/>
-                    <Route path={"/user/:username"} element={<ProfilePage/>}/>
+                    <Route path="/user/:username?" element={<ProfilePage/>}/>
                 </Routes>
             </main>
             <Footer/>
