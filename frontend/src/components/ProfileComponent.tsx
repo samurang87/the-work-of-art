@@ -18,9 +18,11 @@ export default function UserProfile({username}: UserProfileProps) {
                 setLoading(false);
                 return;
             }
+setLoading(true);  // Reset loading when username changes
             try {
                 const response = await axios.get<User>('/api/user/' + username);
                 setUser(response.data);
+                setError(null); // ✅ Clear previous errors on success
             } catch (error) {
                 setError(error instanceof Error ? error.message : 'An error occurred');
             } finally {
