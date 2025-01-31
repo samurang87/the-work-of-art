@@ -24,7 +24,7 @@ setLoading(true);  // Reset loading when username changes
                 setUser(response.data);
                 setError(null); // ✅ Clear previous errors on success
             } catch (error) {
-                setError(error instanceof Error ? error.message : 'An error occurred');
+                setError(error instanceof Error ? error.message : String(error));
             } finally {
                 setLoading(false);
             }
