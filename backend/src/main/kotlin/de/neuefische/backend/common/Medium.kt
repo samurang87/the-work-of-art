@@ -6,7 +6,7 @@ enum class Medium (val lowercase: String){
     COLOR_PENCILS("color pencils"),
     CRAYONS("crayons"),
     DIGITAL("digital"),
-    GUACHE("guache"),
+    GOUACHE("gouache"),
     INK("ink"),
     MARKERS("markers"),
     OIL("oil"),

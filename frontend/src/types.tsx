@@ -4,7 +4,7 @@ export enum Medium {
     COLOR_PENCILS = "color pencils",
     CRAYONS = "crayons",
     DIGITAL = "digital",
-    GUACHE = "guache",
+    GOUACHE = "gouache",
     INK = "ink",
     MARKERS = "markers",
     OIL = "oil",
