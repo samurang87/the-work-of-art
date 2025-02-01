@@ -48,7 +48,7 @@ class UserControllerTest {
             .andExpect(jsonPath("$.bio").value("test-bio"))
             .andExpect(jsonPath("$.imageUrl").value("test-image-url"))
             .andExpect(jsonPath("$.mediums").isArray)
-            .andExpect(jsonPath("$.mediums[0]").value("watercolor"))
+            .andExpect(jsonPath("$.mediums[0]").value("watercolors"))
             .andExpect(jsonPath("$.mediums[1]").value("ink"))
     }
 

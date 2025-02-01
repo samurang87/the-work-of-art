@@ -30,7 +30,7 @@ class UserServiceTest {
             name = "test-user",
             bio = "test-bio",
             imageUrl = "test-image-url",
-            mediums = listOf("watercolor", "ink")
+            mediums = listOf("watercolors", "ink")
         )
 
         every { userRepo.findByName("test-user") } returns user
