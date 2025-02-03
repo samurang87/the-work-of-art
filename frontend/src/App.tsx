@@ -4,6 +4,7 @@ import Footer from "./components/Footer.tsx";
 import {Route, Routes} from "react-router-dom";
 import Feed from "./pages/Feed.tsx";
 import ProfilePage from "./pages/ProfilePage.tsx";
+import WorkOfArtPage from "./pages/WorkOfArtPage.tsx";
 
 function App() {
     return (
@@ -14,6 +15,7 @@ function App() {
                     <Route path={"/"} element={<Feed/>}/>
                     <Route path={"/feed"} element={<Feed/>}/>
                     <Route path="/user/:username?" element={<ProfilePage/>}/>
+                    <Route path={"/woa/:workOfArtId?"} element={<WorkOfArtPage/>}/>
                 </Routes>
             </main>
             <Footer/>

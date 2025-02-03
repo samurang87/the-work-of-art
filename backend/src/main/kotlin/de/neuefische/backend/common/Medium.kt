@@ -13,5 +13,5 @@ enum class Medium (val lowercase: String){
     PAN_PASTELS("pan pastels"),
     PASTELS("pastels"),
     PENCILS("pencils"),
-    WATERCOLORS("watercolor"),
+    WATERCOLORS("watercolors"),
 }

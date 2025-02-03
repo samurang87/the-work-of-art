@@ -21,3 +21,24 @@ export type User = {
     imageUrl: string | null;
     mediums: Medium[];
 }
+
+export type Material = {
+    name: string;
+    identifier: string | null;
+    brand: string | null;
+    line: string | null;
+    type: string | null;
+    medium: Medium | null;
+}
+
+export type WorkOfArt = {
+    id: string;
+    user: string;
+    challengeId: string | null;
+    title: string;
+    description: string | null;
+    imageUrl: string;
+    medium: Medium;
+    materials: Material[] | null;
+    createdAt: string;
+}
