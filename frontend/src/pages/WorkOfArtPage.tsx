@@ -6,7 +6,7 @@ export default function WorkOfArtPage() {
     const {workOfArtId} = useParams<{ workOfArtId?: string }>();
 
     return (
-        <div>
+        <div className="pb-24">
             <WorkOfArt workOfArtId={workOfArtId}/>
         </div>
     );
