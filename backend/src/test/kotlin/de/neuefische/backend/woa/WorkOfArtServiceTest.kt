@@ -22,6 +22,14 @@ class WorkOfArtServiceTest {
         type = "Half Pan",
         medium = Medium.WATERCOLORS,
     )
+    private val scarletRed12 = Material(
+        name = "Scarlet Red",
+        identifier = "12",
+        brand = "Schmincke",
+        line = "Akademie",
+        type = "Tube",
+        medium = Medium.WATERCOLORS,
+    )
     private val paintbrush = Material(
         // This one has some missing fields
         name = "Round Brush",
@@ -34,9 +42,9 @@ class WorkOfArtServiceTest {
         id = BsonObjectId(),
         user = BsonObjectId(),
         challengeId = BsonObjectId(),
-        title = "test-title",
-        description = "test-description",
-        imageUrl = "test-image-url",
+        title = "Yellow Sunset",
+        description = "a yellow sunset",
+        imageUrl = "https://example.com/yellow-sunset.jpg",
         medium = Medium.WATERCOLORS,
         materials = listOf(yellowCadmium24, paintbrush),
     )
@@ -44,9 +52,20 @@ class WorkOfArtServiceTest {
     private val blueDawn = WorkOfArt(
         id = BsonObjectId(),
         user = BsonObjectId(),
-        title = "test-title",
-        imageUrl = "test-image-url",
+        title = "Blue Dawn",
+        imageUrl = "https://example.com/blue-dawn.jpg",
         medium = Medium.PAN_PASTELS,
+    )
+
+    private val redMidday = WorkOfArt(
+        id = BsonObjectId(),
+        user = BsonObjectId(),
+        challengeId = BsonObjectId(),
+        title = "Red Midday",
+        description = "a red midday",
+        imageUrl = "https://example.com/red-midday.jpg",
+        medium = Medium.WATERCOLORS,
+        materials = listOf(scarletRed12, paintbrush),
     )
 
     @Test
@@ -57,9 +76,9 @@ class WorkOfArtServiceTest {
             id = yellowSunset.id.value.toString(),
             user = yellowSunset.user.value.toString(),
             challengeId = yellowSunset.challengeId?.value.toString(),
-            title = "test-title",
-            description = "test-description",
-            imageUrl = "test-image-url",
+            title = "Yellow Sunset",
+            description = "a yellow sunset",
+            imageUrl = "https://example.com/yellow-sunset.jpg",
             medium = "watercolors",
             materials = listOf(
                 MaterialResponse(
@@ -96,8 +115,8 @@ class WorkOfArtServiceTest {
         val expectedResponse = WorkOfArtResponse(
             id = blueDawn.id.value.toString(),
             user = blueDawn.user.value.toString(),
-            title = "test-title",
-            imageUrl = "test-image-url",
+            title = "Blue Dawn",
+            imageUrl = "https://example.com/blue-dawn.jpg",
             medium = "pan pastels",
             createdAt = blueDawn.createdAt.toString(),
         )
@@ -106,6 +125,77 @@ class WorkOfArtServiceTest {
 
         // When
         val result = workOfArtService.getWorkOfArtById(blueDawn.id.value.toString())
+
+        // Then
+        assertEquals(expectedResponse, result)
+    }
+
+    @Test
+    fun getAllWorksOfArtNoMediumsSpecified() {
+        // Given
+        val expectedResponse = listOf(
+            WorkOfArtShortResponse(
+                id = redMidday.id.value.toString(),
+                user = redMidday.user.value.toString(),
+                title = "Red Midday",
+                imageUrl = "https://example.com/red-midday.jpg",
+                medium = "watercolors",
+                createdAt = redMidday.createdAt.toString(),
+            ),
+            WorkOfArtShortResponse(
+                id = blueDawn.id.value.toString(),
+                user = blueDawn.user.value.toString(),
+                title = "Blue Dawn",
+                imageUrl = "https://example.com/blue-dawn.jpg",
+                medium = "pan pastels",
+                createdAt = blueDawn.createdAt.toString(),
+            ),
+            WorkOfArtShortResponse(
+                id = yellowSunset.id.value.toString(),
+                user = yellowSunset.user.value.toString(),
+                title = "Yellow Sunset",
+                imageUrl = "https://example.com/yellow-sunset.jpg",
+                medium = "watercolors",
+                createdAt = yellowSunset.createdAt.toString(),
+            ),
+
+        )
+
+        every { workOfArtRepo.findAll() } returns listOf(redMidday, yellowSunset, blueDawn)
+
+        // When
+        val result = workOfArtService.getAllWorksOfArt()
+
+        // Then
+        assertEquals(expectedResponse, result)
+    }
+
+    @Test
+    fun getAllWorksOfArtWithMediumsSpecified() {
+        // Given
+        val expectedResponse = listOf(
+            WorkOfArtShortResponse(
+                id = redMidday.id.value.toString(),
+                user = redMidday.user.value.toString(),
+                title = "Red Midday",
+                imageUrl = "https://example.com/red-midday.jpg",
+                medium = "watercolors",
+                createdAt = redMidday.createdAt.toString(),
+            ),
+            WorkOfArtShortResponse(
+                id = yellowSunset.id.value.toString(),
+                user = yellowSunset.user.value.toString(),
+                title = "Yellow Sunset",
+                imageUrl = "https://example.com/yellow-sunset.jpg",
+                medium = "watercolors",
+                createdAt = yellowSunset.createdAt.toString(),
+            ),
+        )
+
+        every { workOfArtRepo.findAllByMediumIn(listOf(Medium.WATERCOLORS)) } returns listOf(redMidday, yellowSunset)
+
+        // When
+        val result = workOfArtService.getAllWorksOfArt(listOf(Medium.WATERCOLORS))
 
         // Then
         assertEquals(expectedResponse, result)

@@ -1,10 +1,9 @@
 package de.neuefische.backend.woa
 
+import de.neuefische.backend.common.Medium
+import de.neuefische.backend.common.toMedium
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/woa")
@@ -19,5 +18,18 @@ class WorkOfArtController(private val workOfArtService: WorkOfArtService) {
         } else {
             ResponseEntity.notFound().build()
         }
+    }
+
+    @GetMapping()
+    fun getAllWorksOfArt(
+        @RequestParam(required = false) mediums: List<String>?,
+    ): ResponseEntity<List<WorkOfArtShortResponse>> {
+        if (mediums.isNullOrEmpty()) {
+            val worksOfArt = workOfArtService.getAllWorksOfArt()
+            return ResponseEntity.ok(worksOfArt)
+        }
+        val foundMediums: List<Medium> = mediums.mapNotNull { it.toMedium()}
+        val worksOfArt = workOfArtService.getAllWorksOfArt(foundMediums)
+        return ResponseEntity.ok(worksOfArt)
     }
 }

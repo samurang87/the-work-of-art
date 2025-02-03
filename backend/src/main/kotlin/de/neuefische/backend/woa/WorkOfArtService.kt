@@ -1,5 +1,6 @@
 package de.neuefische.backend.woa
 
+import de.neuefische.backend.common.Medium
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -27,6 +28,26 @@ class WorkOfArtService(private val workOfArtRepo: WorkOfArtRepo) {
                         medium = material.medium?.lowercase,
                     )
                 } ?: emptyList(),
+                createdAt = workOfArt.createdAt.toString(),
+            )
+        }
+    }
+
+    fun getAllWorksOfArt(mediums: List<Medium>? = null): List<WorkOfArtShortResponse> {
+        val worksOfArt = if (mediums.isNullOrEmpty()) {
+            workOfArtRepo.findAll()
+        } else {
+            workOfArtRepo.findAllByMediumIn(mediums)
+        }
+        return worksOfArt
+            .sortedByDescending { it.createdAt }
+            .map { workOfArt ->
+            WorkOfArtShortResponse(
+                id = workOfArt.id.value.toString(),
+                user = workOfArt.user.value.toString(),
+                title = workOfArt.title,
+                imageUrl = workOfArt.imageUrl,
+                medium = workOfArt.medium.lowercase,
                 createdAt = workOfArt.createdAt.toString(),
             )
         }

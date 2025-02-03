@@ -15,3 +15,7 @@ enum class Medium (val lowercase: String){
     PENCILS("pencils"),
     WATERCOLORS("watercolors"),
 }
+
+fun String.toMedium(): Medium? {
+    return Medium.entries.find { it.name.equals(this, ignoreCase = true) }
+}
