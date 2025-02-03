@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {WorkOfArt} from "../types.tsx";
+import {User, WorkOfArt} from "../types.tsx";
 import axios from "axios";
 
 type WorkOfArtComponentProps = {
@@ -14,23 +14,25 @@ function transformImageUrl(url: string): string {
     return `${parts[0]}/upload/c_scale,w_500/q_auto/f_auto/${parts[1]}`;
 }
 
-export default function WorkOfArtComponent({workOfArtId}: WorkOfArtComponentProps) {
-    const [workOfArt, setWorkOfArt] = useState<WorkOfArt | null>(null);
+function useUser(userId: string | undefined) {
+    const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        async function fetchWorkOfArt(workOfArtId: string | undefined) {
-            if (!workOfArtId) {
-                setError('Work of art ID is required');
-                setLoading(false);
-                return;
-            }
-            setLoading(true);  // Reset loading when workOfArtId changes
+        if (!userId) {
+            setLoading(false);
+            return;
+        }
+
+        async function fetchUser() {
+            setLoading(true);
             try {
-                const response = await axios.get<WorkOfArt>('/api/woa/' + workOfArtId);
-                setWorkOfArt(response.data);
-                setError(null); // ✅ Clear previous errors on success
+                const response = await axios.get<User>('/api/user/', {
+                    params: { id: userId }
+                });
+                setUser(response.data);
+                setError(null);
             } catch (error) {
                 setError(error instanceof Error ? error.message : String(error));
             } finally {
@@ -38,13 +40,44 @@ export default function WorkOfArtComponent({workOfArtId}: WorkOfArtComponentProp
             }
         }
 
+        void fetchUser();
+    }, [userId]);
+
+    return { user, loading, error };
+}
+
+export default function WorkOfArtComponent({workOfArtId}: WorkOfArtComponentProps) {
+    const [workOfArt, setWorkOfArt] = useState<WorkOfArt | null>(null);
+    const [workOfArtLoading, setWorkOfArtLoading] = useState(true);
+    const [workOfArtError, setWorkOfArtError] = useState<string | null>(null);
+    const { user, loading: userLoading, error: userError } = useUser(workOfArt?.user);
+
+    useEffect(() => {
+        async function fetchWorkOfArt(workOfArtId: string | undefined) {
+            if (!workOfArtId) {
+                setWorkOfArtError('Work of art ID is required');
+                setWorkOfArtLoading(false);
+                return;
+            }
+            setWorkOfArtLoading(true);  // Reset loading when workOfArtId changes
+            try {
+                const response = await axios.get<WorkOfArt>('/api/woa/' + workOfArtId);
+                setWorkOfArt(response.data);
+                setWorkOfArtError(null);
+            } catch (error) {
+                setWorkOfArtError(error instanceof Error ? error.message : String(error));
+            } finally {
+                setWorkOfArtLoading(false);
+            }
+        }
+
         void fetchWorkOfArt(workOfArtId);
     }, [workOfArtId]);
 
-    if (loading) return <div className="mt-24 text-center">Loading...</div>;
-    if (error) return <div
-        className="mt-24 text-center text-red-500">Error: {error}</div>;
-    if (!workOfArt) return <div className="mt-24 text-center">No work of art data
+    if (workOfArtLoading || userLoading) return <div className="mt-24 text-center">Loading...</div>;
+    if (workOfArtError || userError) return <div
+        className="mt-24 text-center text-red-500">Error: {workOfArtError}</div>;
+    if (!workOfArt || !user) return <div className="mt-24 text-center">No work of art data
         available</div>;
 
     return (
@@ -55,7 +88,7 @@ export default function WorkOfArtComponent({workOfArtId}: WorkOfArtComponentProp
                     className="flex justify-between bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
                     <div>
                         <h2 className="text-2xl font-semibold text-gray-800">
-                            <a href={`/user/${workOfArt.user}`}>{workOfArt.user}</a>
+                            <a href={`/user/${user.name}`}>{user.name}</a>
                         </h2>
                     </div>
                     <div>
