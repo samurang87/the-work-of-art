@@ -9,4 +9,5 @@ data class WorkOfArtResponse(
     val imageUrl: String,
     val medium: String,
     val materials: List<MaterialResponse>? = emptyList(),
+    val createdAt: String,
 )

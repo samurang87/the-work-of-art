@@ -86,6 +86,7 @@ class WorkOfArtControllerTest {
             .andExpect(jsonPath("$.materials[1].line").value("Maestro"))
             .andExpect(jsonPath("$.materials[1].type").value("Paintbrush"))
             .andExpect(jsonPath("$.materials[1].medium").doesNotExist())
+            .andExpect(jsonPath("$.createdAt").value(workOfArt.createdAt.toString()))
     }
 
     @Test
@@ -133,5 +134,6 @@ class WorkOfArtControllerTest {
             .andExpect(jsonPath("$.imageUrl").value("test-image-url"))
             .andExpect(jsonPath("$.medium").value("gouache"))
             .andExpect(jsonPath("$.materials").isEmpty())
+            .andExpect(jsonPath("$.createdAt").value(workOfArt.createdAt.toString()))
     }
 }

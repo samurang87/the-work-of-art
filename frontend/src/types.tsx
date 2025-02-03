@@ -40,4 +40,5 @@ export type WorkOfArt = {
     imageUrl: string;
     medium: Medium;
     materials: Material[] | null;
+    createdAt: string;
 }

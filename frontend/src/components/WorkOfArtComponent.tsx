@@ -14,6 +14,14 @@ function transformImageUrl(url: string): string {
     return `${parts[0]}/upload/c_scale,w_500/q_auto/f_auto/${parts[1]}`;
 }
 
+function formatDate(dateString: string): string {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
 function useUser(userId: string | undefined) {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
@@ -103,8 +111,16 @@ export default function WorkOfArtComponent({workOfArtId}: WorkOfArtComponentProp
                 </div>
 
                 {/* Title Section */}
-                <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4">{workOfArt.title}</h3>
+                <div
+                    className="flex justify-between bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
+                    <div>
+                        <h3 className="text-2xl font-semibold text-gray-800">
+                            {workOfArt.title}
+                        </h3>
+                    </div>
+                    <div>
+                        <p className="text-gray-600">{formatDate(workOfArt.createdAt)}</p>
+                    </div>
                 </div>
 
                 {/* Description Section */}

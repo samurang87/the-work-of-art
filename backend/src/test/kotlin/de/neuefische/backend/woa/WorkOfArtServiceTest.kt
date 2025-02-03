@@ -67,7 +67,8 @@ class WorkOfArtServiceTest {
                     line = "Maestro",
                     type = "Paintbrush",
                 )
-            )
+            ),
+            createdAt = workOfArt.createdAt.toString(),
         )
 
         every { workOfArtRepo.findByIdOrNull(workOfArt.id.value.toString()) } returns workOfArt
@@ -97,6 +98,7 @@ class WorkOfArtServiceTest {
             title = "test-title",
             imageUrl = "test-image-url",
             medium = "pan pastels",
+            createdAt = workOfArt.createdAt.toString(),
         )
 
         every { workOfArtRepo.findByIdOrNull(workOfArt.id.value.toString()) } returns workOfArt

@@ -26,7 +26,8 @@ class WorkOfArtService(private val workOfArtRepo: WorkOfArtRepo) {
                         type = material.type,
                         medium = material.medium?.lowercase,
                     )
-                } ?: emptyList()
+                } ?: emptyList(),
+                createdAt = workOfArt.createdAt.toString(),
             )
         }
     }
