@@ -13,9 +13,7 @@ class UserController(private val userService: UserService) {
         @RequestParam(required = false) name: String?
     ): ResponseEntity<UserProfileResponse> {
 
-        if (id == null && name == null) {
-            throw IllegalArgumentException("Either id or name must be provided")
-        }
+        require(!(id == null && name == null)) { "Either id or name must be provided" }
 
         var userProfile: UserProfileResponse? = null
         if (id != null) {
