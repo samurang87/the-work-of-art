@@ -3,7 +3,6 @@ package de.neuefische.backend.woa
 import de.neuefische.backend.common.Medium
 import io.mockk.every
 import io.mockk.mockk
-import org.assertj.core.api.Assertions.assertThat
 import org.bson.BsonObjectId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
