@@ -1,9 +1,10 @@
 import {useEffect, useState} from "react";
-import {User, WorkOfArt} from "../types.tsx";
+import {WorkOfArt} from "../types.tsx";
 import axios from "axios";
 
 type WorkOfArtComponentProps = {
     workOfArtId?: string;
+    allFields?: boolean;
 };
 
 function transformImageUrl(url: string): string {
@@ -22,48 +23,13 @@ function formatDate(dateString: string): string {
     return `${day}/${month}/${year}`;
 }
 
-function useUser(userId: string | undefined) {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (!userId) {
-            setLoading(false);
-            return;
-        }
-
-        async function fetchUser() {
-            setLoading(true);
-            try {
-                const response = await axios.get<User>('/api/user/', {
-                    params: {id: userId}
-                });
-                setUser(response.data);
-                setError(null);
-            } catch (error) {
-                setError(error instanceof Error ? error.message : String(error));
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        void fetchUser();
-    }, [userId]);
-
-    return {user, loading, error};
-}
-
 export default function WorkOfArtComponent({
                                                workOfArtId,
                                                allFields = true
-                                           }: WorkOfArtComponentProps & {
-    allFields?: boolean
-}) {
+                                           }: WorkOfArtComponentProps) {
     const [workOfArt, setWorkOfArt] = useState<WorkOfArt | null>(null);
     const [workOfArtLoading, setWorkOfArtLoading] = useState(true);
     const [workOfArtError, setWorkOfArtError] = useState<string | null>(null);
-    const {user, loading: userLoading, error: userError} = useUser(workOfArt?.user);
 
     useEffect(() => {
         async function fetchWorkOfArt(workOfArtId: string | undefined) {
@@ -87,12 +53,10 @@ export default function WorkOfArtComponent({
         void fetchWorkOfArt(workOfArtId);
     }, [workOfArtId]);
 
-    if (workOfArtLoading || userLoading) return <div
-        className="mt-24 text-center">Loading...</div>;
-    if (workOfArtError || userError) return <div
+    if (workOfArtLoading) return <div className="mt-24 text-center">Loading...</div>;
+    if (workOfArtError) return <div
         className="mt-24 text-center text-red-500">Error: {workOfArtError}</div>;
-    if (!workOfArt || !user) return <div className="mt-24 text-center">No work of art
-        data
+    if (!workOfArt) return <div className="mt-24 text-center">No work of art data
         available</div>;
 
     return (
@@ -103,7 +67,7 @@ export default function WorkOfArtComponent({
                     className="flex justify-between bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
                     <div>
                         <h2 className="text-2xl font-semibold text-gray-800">
-                            <a href={`/user/${user.name}`}>{user.name}</a>
+                            <a href={`/user/${workOfArt.userName}`}>{workOfArt.userName}</a>
                         </h2>
                     </div>
                     <div>
@@ -147,7 +111,6 @@ export default function WorkOfArtComponent({
                                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Materials</h3>
                                 {workOfArt.materials.map((material, index) => (
                                     <p key={index} className="text-gray-600">
-                                        {/* TODO: Different material description depending on what's available */}
                                         {material.type} {material.identifier} - {material.name} by {material.brand} ({material.line})
                                     </p>
                                 ))}
