@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/woa")
-class WorkOfArtController(private val workOfArtService: WorkOfArtService) {
-
+class WorkOfArtController(
+    private val workOfArtService: WorkOfArtService,
+) {
     @GetMapping("/{id}")
-    fun getWorkOfArt(@PathVariable id: String): ResponseEntity<WorkOfArtResponse> {
-
+    fun getWorkOfArt(
+        @PathVariable id: String,
+    ): ResponseEntity<WorkOfArtResponse> {
         val workOfArt = workOfArtService.getWorkOfArtById(id)
         return if (workOfArt != null) {
             ResponseEntity.ok(workOfArt)
@@ -32,7 +34,7 @@ class WorkOfArtController(private val workOfArtService: WorkOfArtService) {
             val worksOfArt = workOfArtService.getAllWorksOfArt()
             return ResponseEntity.ok(worksOfArt)
         }
-        val foundMediums: List<Medium> = mediums.mapNotNull { it.toMedium()}
+        val foundMediums: List<Medium> = mediums.mapNotNull { it.toMedium() }
         val worksOfArt = workOfArtService.getAllWorksOfArt(foundMediums)
         return ResponseEntity.ok(worksOfArt)
     }

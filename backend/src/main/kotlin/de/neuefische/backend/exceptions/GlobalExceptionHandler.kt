@@ -7,22 +7,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    fun handleGenericException(exception: Exception): ErrorMessage {
-        return ErrorMessage(
+    fun handleGenericException(exception: Exception): ErrorMessage =
+        ErrorMessage(
             status = HttpStatus.INTERNAL_SERVER_ERROR,
-            message = exception.message ?: "An error occurred"
+            message = exception.message ?: "An error occurred",
         )
-    }
 
     @ExceptionHandler()
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleBadRequestException(exception: IllegalArgumentException): ErrorMessage {
-        return ErrorMessage(
+    fun handleBadRequestException(exception: IllegalArgumentException): ErrorMessage =
+        ErrorMessage(
             status = HttpStatus.BAD_REQUEST,
-            message = exception.message ?: "Bad request"
+            message = exception.message ?: "Bad request",
         )
-    }
 }

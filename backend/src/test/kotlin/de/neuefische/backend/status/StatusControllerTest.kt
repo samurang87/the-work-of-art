@@ -12,13 +12,13 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @SpringBootTest
 @AutoConfigureMockMvc
 class StatusControllerTest {
-
     @Autowired
     private lateinit var mockMvc: MockMvc
 
     @Test
     fun getStatus_shouldReturnOk() {
-        mockMvc.perform(get("/api/status"))
+        mockMvc
+            .perform(get("/api/status"))
             .andExpect(status().isOk)
             .andExpect { assertTrue(it.response.contentAsString.isNotEmpty()) }
     }

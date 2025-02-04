@@ -5,5 +5,5 @@ data class UserProfileResponse(
     val name: String,
     val bio: String?,
     val imageUrl: String?,
-    val mediums: List<String>
+    val mediums: List<String>,
 )

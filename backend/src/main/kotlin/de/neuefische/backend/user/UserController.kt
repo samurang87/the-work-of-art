@@ -8,14 +8,14 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/user")
-class UserController(private val userService: UserService) {
-
+class UserController(
+    private val userService: UserService,
+) {
     @GetMapping("/")
     fun getUser(
         @RequestParam(required = false) id: String?,
-        @RequestParam(required = false) name: String?
+        @RequestParam(required = false) name: String?,
     ): ResponseEntity<UserProfileResponse> {
-
         require(!(id == null && name == null)) { "Either id or name must be provided" }
 
         var userProfile: UserProfileResponse? = null

@@ -8,11 +8,8 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/api/status")
 class StatusController {
-
     val githubSHA: String = System.getenv("GITHUB_SHA") ?: "ok"
 
     @GetMapping
-    fun getStatus(): ResponseEntity<String> {
-        return ResponseEntity.ok(githubSHA)
-    }
+    fun getStatus(): ResponseEntity<String> = ResponseEntity.ok(githubSHA)
 }

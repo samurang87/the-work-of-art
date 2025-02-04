@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @SpringBootTest
 @AutoConfigureMockMvc
 class WorkOfArtControllerTest {
-
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -25,73 +24,80 @@ class WorkOfArtControllerTest {
     private lateinit var workOfArtRepo: WorkOfArtRepo
 
     // Reusable test data
-    private val yellowCadmium24 = Material(
-        name = "Yellow Cadmium 24",
-        identifier = "24",
-        brand = "Schmincke",
-        line = "Horadam",
-        type = "Half Pan",
-        medium = Medium.WATERCOLORS,
-    )
-    private val scarletRed12 = Material(
-        name = "Scarlet Red",
-        identifier = "12",
-        brand = "Schmincke",
-        line = "Akademie",
-        type = "Tube",
-        medium = Medium.WATERCOLORS,
-    )
-    private val paintbrush = Material(
-        // This one has some missing fields
-        name = "Round Brush",
-        brand = "Da Vinci",
-        line = "Maestro",
-        type = "Paintbrush",
-    )
+    private val yellowCadmium24 =
+        Material(
+            name = "Yellow Cadmium 24",
+            identifier = "24",
+            brand = "Schmincke",
+            line = "Horadam",
+            type = "Half Pan",
+            medium = Medium.WATERCOLORS,
+        )
+    private val scarletRed12 =
+        Material(
+            name = "Scarlet Red",
+            identifier = "12",
+            brand = "Schmincke",
+            line = "Akademie",
+            type = "Tube",
+            medium = Medium.WATERCOLORS,
+        )
+    private val paintbrush =
+        Material(
+            // This one has some missing fields
+            name = "Round Brush",
+            brand = "Da Vinci",
+            line = "Maestro",
+            type = "Paintbrush",
+        )
 
-    private val yellowSunset = WorkOfArt(
-        id = BsonObjectId(),
-        user = BsonObjectId(),
-        challengeId = BsonObjectId(),
-        userName = "max_mustermann",
-        title = "Yellow Sunset",
-        description = "a yellow sunset",
-        imageUrl = "https://example.com/yellow-sunset.jpg",
-        medium = Medium.WATERCOLORS,
-        materials = listOf(
-            yellowCadmium24,
-            paintbrush,
-        ),
-    )
+    private val yellowSunset =
+        WorkOfArt(
+            id = BsonObjectId(),
+            user = BsonObjectId(),
+            challengeId = BsonObjectId(),
+            userName = "max_mustermann",
+            title = "Yellow Sunset",
+            description = "a yellow sunset",
+            imageUrl = "https://example.com/yellow-sunset.jpg",
+            medium = Medium.WATERCOLORS,
+            materials =
+                listOf(
+                    yellowCadmium24,
+                    paintbrush,
+                ),
+        )
 
-    private val blueDawn = WorkOfArt(
-        id = BsonObjectId(),
-        user = BsonObjectId(),
-        userName = "mario_rossi",
-        title = "Blue Dawn",
-        imageUrl = "https://example.com/blue-dawn.jpg",
-        medium = Medium.GOUACHE,
-    )
+    private val blueDawn =
+        WorkOfArt(
+            id = BsonObjectId(),
+            user = BsonObjectId(),
+            userName = "mario_rossi",
+            title = "Blue Dawn",
+            imageUrl = "https://example.com/blue-dawn.jpg",
+            medium = Medium.GOUACHE,
+        )
 
-    private val redMidday = WorkOfArt(
-        id = BsonObjectId(),
-        user = BsonObjectId(),
-        challengeId = BsonObjectId(),
-        userName = "jane_snow",
-        title = "Red Midday",
-        description = "a red midday",
-        imageUrl = "https://example.com/red-midday.jpg",
-        medium = Medium.WATERCOLORS,
-        materials = listOf(
-            scarletRed12,
-            paintbrush
-        ),
-    )
+    private val redMidday =
+        WorkOfArt(
+            id = BsonObjectId(),
+            user = BsonObjectId(),
+            challengeId = BsonObjectId(),
+            userName = "jane_snow",
+            title = "Red Midday",
+            description = "a red midday",
+            imageUrl = "https://example.com/red-midday.jpg",
+            medium = Medium.WATERCOLORS,
+            materials =
+                listOf(
+                    scarletRed12,
+                    paintbrush,
+                ),
+        )
 
     // GET /api/woa/{id}
     @Test
     fun getWorkOfArtById() {
-
         // Given
         every { workOfArtRepo.findByIdOrNull(yellowSunset.id.value.toString()) } returns yellowSunset
 
@@ -99,7 +105,8 @@ class WorkOfArtControllerTest {
         val result = mockMvc.perform(get("/api/woa/${yellowSunset.id.value}"))
 
         // Then
-        result.andExpect(status().isOk)
+        result
+            .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(yellowSunset.id.value.toString()))
             .andExpect(jsonPath("$.user").value(yellowSunset.user.value.toString()))
             .andExpect(jsonPath("$.challengeId").value(yellowSunset.challengeId?.value.toString()))
@@ -126,7 +133,6 @@ class WorkOfArtControllerTest {
 
     @Test
     fun getWorkOfArtByIdReturnsNotFound() {
-
         // Given
         val workOfArtId = BsonObjectId()
 
@@ -141,7 +147,6 @@ class WorkOfArtControllerTest {
 
     @Test
     fun getWorkOfArtByIdWithOnlyRequiredFields() {
-
         // Given
         every { workOfArtRepo.findByIdOrNull(blueDawn.id.value.toString()) } returns blueDawn
 
@@ -149,7 +154,8 @@ class WorkOfArtControllerTest {
         val result = mockMvc.perform(get("/api/woa/${blueDawn.id.value}"))
 
         // Then
-        result.andExpect(status().isOk)
+        result
+            .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(blueDawn.id.value.toString()))
             .andExpect(jsonPath("$.user").value(blueDawn.user.value.toString()))
             .andExpect(jsonPath("$.userName").value("mario_rossi"))
@@ -165,17 +171,19 @@ class WorkOfArtControllerTest {
     @Test
     fun getAllWorksOfArtNoFilters() {
         // Given
-        every { workOfArtRepo.findAll() } returns listOf(
-            redMidday,
-            blueDawn,
-            yellowSunset
-        )
+        every { workOfArtRepo.findAll() } returns
+            listOf(
+                redMidday,
+                blueDawn,
+                yellowSunset,
+            )
 
         // When
         val result = mockMvc.perform(get("/api/woa"))
 
         // Then
-        result.andExpect(status().isOk)
+        result
+            .andExpect(status().isOk)
             .andExpect(jsonPath("$[0].id").value(redMidday.id.value.toString()))
             .andExpect(jsonPath("$[0].user").value(redMidday.user.value.toString()))
             .andExpect(jsonPath("$[0].userName").value("jane_snow"))
@@ -202,16 +210,18 @@ class WorkOfArtControllerTest {
     @Test
     fun getAllWorksOfArtWithMediumsFilter() {
         // Given
-        every { workOfArtRepo.findAllByMediumIn(listOf(Medium.WATERCOLORS)) } returns listOf(
-            redMidday,
-            yellowSunset
-        )
+        every { workOfArtRepo.findAllByMediumIn(listOf(Medium.WATERCOLORS)) } returns
+            listOf(
+                redMidday,
+                yellowSunset,
+            )
 
         // When
         val result = mockMvc.perform(get("/api/woa?mediums=watercolors"))
 
         // Then
-        result.andExpect(status().isOk)
+        result
+            .andExpect(status().isOk)
             .andExpect(jsonPath("$[0].id").value(redMidday.id.value.toString()))
             .andExpect(jsonPath("$[0].user").value(redMidday.user.value.toString()))
             .andExpect(jsonPath("$[0].userName").value("jane_snow"))
