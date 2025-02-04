@@ -1,9 +1,7 @@
-import {useEffect, useState} from "react";
-import {WorkOfArt} from "../types.tsx";
-import axios from "axios";
+import { WorkOfArt } from "../types.tsx";
 
 type WorkOfArtComponentProps = {
-    workOfArtId?: string;
+    workOfArt: WorkOfArt;
     allFields?: boolean;
 };
 
@@ -23,48 +21,12 @@ function formatDate(dateString: string): string {
     return `${day}/${month}/${year}`;
 }
 
-export default function WorkOfArtComponent({
-                                               workOfArtId,
-                                               allFields = true
-                                           }: WorkOfArtComponentProps) {
-    const [workOfArt, setWorkOfArt] = useState<WorkOfArt | null>(null);
-    const [workOfArtLoading, setWorkOfArtLoading] = useState(true);
-    const [workOfArtError, setWorkOfArtError] = useState<string | null>(null);
-
-    useEffect(() => {
-        async function fetchWorkOfArt(workOfArtId: string | undefined) {
-            if (!workOfArtId) {
-                setWorkOfArtError('Work of art ID is required');
-                setWorkOfArtLoading(false);
-                return;
-            }
-            setWorkOfArtLoading(true);  // Reset loading when workOfArtId changes
-            try {
-                const response = await axios.get<WorkOfArt>('/api/woa/' + workOfArtId);
-                setWorkOfArt(response.data);
-                setWorkOfArtError(null);
-            } catch (error) {
-                setWorkOfArtError(error instanceof Error ? error.message : String(error));
-            } finally {
-                setWorkOfArtLoading(false);
-            }
-        }
-
-        void fetchWorkOfArt(workOfArtId);
-    }, [workOfArtId]);
-
-    if (workOfArtLoading) return <div className="mt-24 text-center">Loading...</div>;
-    if (workOfArtError) return <div
-        className="mt-24 text-center text-red-500">Error: {workOfArtError}</div>;
-    if (!workOfArt) return <div className="mt-24 text-center">No work of art data
-        available</div>;
-
+export default function WorkOfArtComponent({ workOfArt, allFields = true }: WorkOfArtComponentProps) {
     return (
         <div className="container mx-auto px-4 mt-24">
             <div className="max-w-2xl mx-auto space-y-6">
                 {/* User and Medium Section */}
-                <div
-                    className="flex justify-between bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
+                <div className="flex justify-between bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
                     <div>
                         <h2 className="text-2xl font-semibold text-gray-800">
                             <a href={`/user/${workOfArt.userName}`}>{workOfArt.userName}</a>
@@ -77,13 +39,11 @@ export default function WorkOfArtComponent({
 
                 {/* Image Section */}
                 <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
-                    <img src={transformImageUrl(workOfArt.imageUrl)}
-                         alt={workOfArt.title} className="w-full rounded-lg"/>
+                    <img src={transformImageUrl(workOfArt.imageUrl)} alt={workOfArt.title} className="w-full rounded-lg" />
                 </div>
 
                 {/* Title Section */}
-                <div
-                    className="flex justify-between bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
+                <div className="flex justify-between bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
                     <div>
                         <h3 className="text-2xl font-semibold text-gray-800">
                             <a href={`/woa/${workOfArt.id}`}>{workOfArt.title}</a>
@@ -96,8 +56,7 @@ export default function WorkOfArtComponent({
                 {allFields && (
                     <>
                         {/* Description Section */}
-                        <div
-                            className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
+                        <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
                             <h3 className="text-xl font-semibold text-gray-800 mb-4">Description</h3>
                             <p className="text-gray-600">
                                 {workOfArt.description || 'No description yet 🌳'}
@@ -106,8 +65,7 @@ export default function WorkOfArtComponent({
 
                         {/* Materials Section */}
                         {workOfArt.materials && workOfArt.materials.length > 0 && (
-                            <div
-                                className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
+                            <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
                                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Materials</h3>
                                 {workOfArt.materials.map((material, index) => (
                                     <p key={index} className="text-gray-600">
@@ -119,8 +77,7 @@ export default function WorkOfArtComponent({
 
                         {/* Challenge Section */}
                         {workOfArt.challengeId && (
-                            <div
-                                className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
+                            <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
                                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Challenge</h3>
                                 <p className="text-gray-600">
                                     See challenge: {workOfArt.challengeId}
