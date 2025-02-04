@@ -54,7 +54,7 @@ function useUser(userId: string | undefined) {
     return { user, loading, error };
 }
 
-export default function WorkOfArtComponent({workOfArtId}: WorkOfArtComponentProps) {
+export default function WorkOfArtComponent({workOfArtId, allFields = true}: WorkOfArtComponentProps & { allFields?: boolean }) {
     const [workOfArt, setWorkOfArt] = useState<WorkOfArt | null>(null);
     const [workOfArtLoading, setWorkOfArtLoading] = useState(true);
     const [workOfArtError, setWorkOfArtError] = useState<string | null>(null);
@@ -122,7 +122,8 @@ export default function WorkOfArtComponent({workOfArtId}: WorkOfArtComponentProp
                         <p className="text-gray-600">{formatDate(workOfArt.createdAt)}</p>
                     </div>
                 </div>
-
+            { allFields && (
+                <>
                 {/* Description Section */}
                 <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
                     <h3 className="text-xl font-semibold text-gray-800 mb-4">Description</h3>
@@ -155,6 +156,8 @@ export default function WorkOfArtComponent({workOfArtId}: WorkOfArtComponentProp
                         </p>
                     </div>
                 )}
+                </>
+            )}
             </div>
         </div>
     );
