@@ -12,6 +12,7 @@ data class WorkOfArt(
     val id: BsonObjectId = BsonObjectId(),
     val user: BsonObjectId,
     val challengeId: BsonObjectId? = null,
+    val userName: String,
     val title: String,
     val description: String? = null,
     val imageUrl: String,

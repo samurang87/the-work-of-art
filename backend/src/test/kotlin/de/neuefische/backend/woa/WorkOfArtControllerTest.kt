@@ -53,6 +53,7 @@ class WorkOfArtControllerTest {
         id = BsonObjectId(),
         user = BsonObjectId(),
         challengeId = BsonObjectId(),
+        userName = "max_mustermann",
         title = "Yellow Sunset",
         description = "a yellow sunset",
         imageUrl = "https://example.com/yellow-sunset.jpg",
@@ -66,6 +67,7 @@ class WorkOfArtControllerTest {
     private val blueDawn = WorkOfArt(
         id = BsonObjectId(),
         user = BsonObjectId(),
+        userName = "mario_rossi",
         title = "Blue Dawn",
         imageUrl = "https://example.com/blue-dawn.jpg",
         medium = Medium.GOUACHE,
@@ -75,6 +77,7 @@ class WorkOfArtControllerTest {
         id = BsonObjectId(),
         user = BsonObjectId(),
         challengeId = BsonObjectId(),
+        userName = "jane_snow",
         title = "Red Midday",
         description = "a red midday",
         imageUrl = "https://example.com/red-midday.jpg",
@@ -100,6 +103,7 @@ class WorkOfArtControllerTest {
             .andExpect(jsonPath("$.id").value(yellowSunset.id.value.toString()))
             .andExpect(jsonPath("$.user").value(yellowSunset.user.value.toString()))
             .andExpect(jsonPath("$.challengeId").value(yellowSunset.challengeId?.value.toString()))
+            .andExpect(jsonPath("$.userName").value("max_mustermann"))
             .andExpect(jsonPath("$.title").value("Yellow Sunset"))
             .andExpect(jsonPath("$.description").value("a yellow sunset"))
             .andExpect(jsonPath("$.imageUrl").value("https://example.com/yellow-sunset.jpg"))
@@ -148,6 +152,7 @@ class WorkOfArtControllerTest {
         result.andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(blueDawn.id.value.toString()))
             .andExpect(jsonPath("$.user").value(blueDawn.user.value.toString()))
+            .andExpect(jsonPath("$.userName").value("mario_rossi"))
             .andExpect(jsonPath("$.challengeId").doesNotExist())
             .andExpect(jsonPath("$.title").value("Blue Dawn"))
             .andExpect(jsonPath("$.description").doesNotExist())
@@ -173,18 +178,21 @@ class WorkOfArtControllerTest {
         result.andExpect(status().isOk)
             .andExpect(jsonPath("$[0].id").value(redMidday.id.value.toString()))
             .andExpect(jsonPath("$[0].user").value(redMidday.user.value.toString()))
+            .andExpect(jsonPath("$[0].userName").value("jane_snow"))
             .andExpect(jsonPath("$[0].title").value("Red Midday"))
             .andExpect(jsonPath("$[0].imageUrl").value("https://example.com/red-midday.jpg"))
             .andExpect(jsonPath("$[0].medium").value("watercolors"))
             .andExpect(jsonPath("$[0].createdAt").value(redMidday.createdAt.toString()))
             .andExpect(jsonPath("$[1].id").value(blueDawn.id.value.toString()))
             .andExpect(jsonPath("$[1].user").value(blueDawn.user.value.toString()))
+            .andExpect(jsonPath("$[1].userName").value("mario_rossi"))
             .andExpect(jsonPath("$[1].title").value("Blue Dawn"))
             .andExpect(jsonPath("$[1].imageUrl").value("https://example.com/blue-dawn.jpg"))
             .andExpect(jsonPath("$[1].medium").value("gouache"))
             .andExpect(jsonPath("$[1].createdAt").value(blueDawn.createdAt.toString()))
             .andExpect(jsonPath("$[2].id").value(yellowSunset.id.value.toString()))
             .andExpect(jsonPath("$[2].user").value(yellowSunset.user.value.toString()))
+            .andExpect(jsonPath("$[2].userName").value("max_mustermann"))
             .andExpect(jsonPath("$[2].title").value("Yellow Sunset"))
             .andExpect(jsonPath("$[2].imageUrl").value("https://example.com/yellow-sunset.jpg"))
             .andExpect(jsonPath("$[2].medium").value("watercolors"))
@@ -206,12 +214,14 @@ class WorkOfArtControllerTest {
         result.andExpect(status().isOk)
             .andExpect(jsonPath("$[0].id").value(redMidday.id.value.toString()))
             .andExpect(jsonPath("$[0].user").value(redMidday.user.value.toString()))
+            .andExpect(jsonPath("$[0].userName").value("jane_snow"))
             .andExpect(jsonPath("$[0].title").value("Red Midday"))
             .andExpect(jsonPath("$[0].imageUrl").value("https://example.com/red-midday.jpg"))
             .andExpect(jsonPath("$[0].medium").value("watercolors"))
             .andExpect(jsonPath("$[0].createdAt").value(redMidday.createdAt.toString()))
             .andExpect(jsonPath("$[1].id").value(yellowSunset.id.value.toString()))
             .andExpect(jsonPath("$[1].user").value(yellowSunset.user.value.toString()))
+            .andExpect(jsonPath("$[1].userName").value("max_mustermann"))
             .andExpect(jsonPath("$[1].title").value("Yellow Sunset"))
             .andExpect(jsonPath("$[1].imageUrl").value("https://example.com/yellow-sunset.jpg"))
             .andExpect(jsonPath("$[1].medium").value("watercolors"))

@@ -42,6 +42,7 @@ class WorkOfArtServiceTest {
         id = BsonObjectId(),
         user = BsonObjectId(),
         challengeId = BsonObjectId(),
+        userName = "max_mustermann",
         title = "Yellow Sunset",
         description = "a yellow sunset",
         imageUrl = "https://example.com/yellow-sunset.jpg",
@@ -52,6 +53,7 @@ class WorkOfArtServiceTest {
     private val blueDawn = WorkOfArt(
         id = BsonObjectId(),
         user = BsonObjectId(),
+        userName = "mario_rossi",
         title = "Blue Dawn",
         imageUrl = "https://example.com/blue-dawn.jpg",
         medium = Medium.PAN_PASTELS,
@@ -61,6 +63,7 @@ class WorkOfArtServiceTest {
         id = BsonObjectId(),
         user = BsonObjectId(),
         challengeId = BsonObjectId(),
+        userName = "jane_snow",
         title = "Red Midday",
         description = "a red midday",
         imageUrl = "https://example.com/red-midday.jpg",
@@ -76,6 +79,7 @@ class WorkOfArtServiceTest {
             id = yellowSunset.id.value.toString(),
             user = yellowSunset.user.value.toString(),
             challengeId = yellowSunset.challengeId?.value.toString(),
+            userName = "max_mustermann",
             title = "Yellow Sunset",
             description = "a yellow sunset",
             imageUrl = "https://example.com/yellow-sunset.jpg",
@@ -115,6 +119,7 @@ class WorkOfArtServiceTest {
         val expectedResponse = WorkOfArtResponse(
             id = blueDawn.id.value.toString(),
             user = blueDawn.user.value.toString(),
+            userName = "mario_rossi",
             title = "Blue Dawn",
             imageUrl = "https://example.com/blue-dawn.jpg",
             medium = "pan pastels",
@@ -137,6 +142,7 @@ class WorkOfArtServiceTest {
             WorkOfArtShortResponse(
                 id = redMidday.id.value.toString(),
                 user = redMidday.user.value.toString(),
+                userName = "jane_snow",
                 title = "Red Midday",
                 imageUrl = "https://example.com/red-midday.jpg",
                 medium = "watercolors",
@@ -145,6 +151,7 @@ class WorkOfArtServiceTest {
             WorkOfArtShortResponse(
                 id = blueDawn.id.value.toString(),
                 user = blueDawn.user.value.toString(),
+                userName = "mario_rossi",
                 title = "Blue Dawn",
                 imageUrl = "https://example.com/blue-dawn.jpg",
                 medium = "pan pastels",
@@ -153,6 +160,7 @@ class WorkOfArtServiceTest {
             WorkOfArtShortResponse(
                 id = yellowSunset.id.value.toString(),
                 user = yellowSunset.user.value.toString(),
+                userName = "max_mustermann",
                 title = "Yellow Sunset",
                 imageUrl = "https://example.com/yellow-sunset.jpg",
                 medium = "watercolors",
@@ -177,6 +185,7 @@ class WorkOfArtServiceTest {
             WorkOfArtShortResponse(
                 id = redMidday.id.value.toString(),
                 user = redMidday.user.value.toString(),
+                userName = "jane_snow",
                 title = "Red Midday",
                 imageUrl = "https://example.com/red-midday.jpg",
                 medium = "watercolors",
@@ -185,6 +194,7 @@ class WorkOfArtServiceTest {
             WorkOfArtShortResponse(
                 id = yellowSunset.id.value.toString(),
                 user = yellowSunset.user.value.toString(),
+                userName = "max_mustermann",
                 title = "Yellow Sunset",
                 imageUrl = "https://example.com/yellow-sunset.jpg",
                 medium = "watercolors",

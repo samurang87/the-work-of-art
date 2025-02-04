@@ -13,6 +13,7 @@ class WorkOfArtService(private val workOfArtRepo: WorkOfArtRepo) {
             WorkOfArtResponse(
                 id = workOfArt.id.value.toString(),
                 user = workOfArt.user.value.toString(),
+                userName = workOfArt.userName,
                 challengeId = workOfArt.challengeId?.value?.toString(),
                 title = workOfArt.title,
                 description = workOfArt.description,
@@ -45,6 +46,7 @@ class WorkOfArtService(private val workOfArtRepo: WorkOfArtRepo) {
             WorkOfArtShortResponse(
                 id = workOfArt.id.value.toString(),
                 user = workOfArt.user.value.toString(),
+                userName = workOfArt.userName,
                 title = workOfArt.title,
                 imageUrl = workOfArt.imageUrl,
                 medium = workOfArt.medium.lowercase,
