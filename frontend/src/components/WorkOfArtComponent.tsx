@@ -37,7 +37,7 @@ function useUser(userId: string | undefined) {
             setLoading(true);
             try {
                 const response = await axios.get<User>('/api/user/', {
-                    params: { id: userId }
+                    params: {id: userId}
                 });
                 setUser(response.data);
                 setError(null);
@@ -51,14 +51,19 @@ function useUser(userId: string | undefined) {
         void fetchUser();
     }, [userId]);
 
-    return { user, loading, error };
+    return {user, loading, error};
 }
 
-export default function WorkOfArtComponent({workOfArtId, allFields = true}: WorkOfArtComponentProps & { allFields?: boolean }) {
+export default function WorkOfArtComponent({
+                                               workOfArtId,
+                                               allFields = true
+                                           }: WorkOfArtComponentProps & {
+    allFields?: boolean
+}) {
     const [workOfArt, setWorkOfArt] = useState<WorkOfArt | null>(null);
     const [workOfArtLoading, setWorkOfArtLoading] = useState(true);
     const [workOfArtError, setWorkOfArtError] = useState<string | null>(null);
-    const { user, loading: userLoading, error: userError } = useUser(workOfArt?.user);
+    const {user, loading: userLoading, error: userError} = useUser(workOfArt?.user);
 
     useEffect(() => {
         async function fetchWorkOfArt(workOfArtId: string | undefined) {
@@ -82,10 +87,12 @@ export default function WorkOfArtComponent({workOfArtId, allFields = true}: Work
         void fetchWorkOfArt(workOfArtId);
     }, [workOfArtId]);
 
-    if (workOfArtLoading || userLoading) return <div className="mt-24 text-center">Loading...</div>;
+    if (workOfArtLoading || userLoading) return <div
+        className="mt-24 text-center">Loading...</div>;
     if (workOfArtError || userError) return <div
         className="mt-24 text-center text-red-500">Error: {workOfArtError}</div>;
-    if (!workOfArt || !user) return <div className="mt-24 text-center">No work of art data
+    if (!workOfArt || !user) return <div className="mt-24 text-center">No work of art
+        data
         available</div>;
 
     return (
@@ -122,42 +129,43 @@ export default function WorkOfArtComponent({workOfArtId, allFields = true}: Work
                         <p className="text-gray-600">{formatDate(workOfArt.createdAt)}</p>
                     </div>
                 </div>
-            { allFields && (
-                <>
-                {/* Description Section */}
-                <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-4">Description</h3>
-                    <p className="text-gray-600">
-                        {workOfArt.description || 'No description yet 🌳'}
-                    </p>
-                </div>
-
-                {/* Materials Section */}
-                {workOfArt.materials && workOfArt.materials.length > 0 && (
-                    <div
-                        className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
-                        <h3 className="text-xl font-semibold text-gray-800 mb-4">Materials</h3>
-                        {workOfArt.materials.map((material, index) => (
-                            <p key={index} className="text-gray-600">
-                                {/* TODO: Different material description depending on what's available */}
-                                {material.type} {material.identifier} - {material.name} by {material.brand} ({material.line})
+                {allFields && (
+                    <>
+                        {/* Description Section */}
+                        <div
+                            className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4">Description</h3>
+                            <p className="text-gray-600">
+                                {workOfArt.description || 'No description yet 🌳'}
                             </p>
-                        ))}
-                    </div>
-                )}
+                        </div>
 
-                {/* Challenge Section */}
-                {workOfArt.challengeId && (
-                    <div
-                        className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
-                        <h3 className="text-xl font-semibold text-gray-800 mb-4">Challenge</h3>
-                        <p className="text-gray-600">
-                            See challenge: {workOfArt.challengeId}
-                        </p>
-                    </div>
+                        {/* Materials Section */}
+                        {workOfArt.materials && workOfArt.materials.length > 0 && (
+                            <div
+                                className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Materials</h3>
+                                {workOfArt.materials.map((material, index) => (
+                                    <p key={index} className="text-gray-600">
+                                        {/* TODO: Different material description depending on what's available */}
+                                        {material.type} {material.identifier} - {material.name} by {material.brand} ({material.line})
+                                    </p>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Challenge Section */}
+                        {workOfArt.challengeId && (
+                            <div
+                                className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
+                                <h3 className="text-xl font-semibold text-gray-800 mb-4">Challenge</h3>
+                                <p className="text-gray-600">
+                                    See challenge: {workOfArt.challengeId}
+                                </p>
+                            </div>
+                        )}
+                    </>
                 )}
-                </>
-            )}
             </div>
         </div>
     );
