@@ -34,6 +34,7 @@ export type Material = {
 export type WorkOfArt = {
     id: string;
     user: string;
+    userName: string,
     challengeId: string | null;
     title: string;
     description: string | null;
