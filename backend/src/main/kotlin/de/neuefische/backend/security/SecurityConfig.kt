@@ -1,4 +1,4 @@
-package de.neuefische.backend
+package de.neuefische.backend.security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,8 +18,7 @@ class SecurityConfig {
         http
             .csrf { it.disable() }
             .authorizeHttpRequests {
-                it.requestMatchers("/api/user/**").authenticated()
-                it.requestMatchers("/api/user", "/api/woa/**").authenticated()
+                it.requestMatchers("/api/woa", "/api/woa/**", "/api/user/**").authenticated()
                 it.requestMatchers("/api/status").permitAll()
                 it.anyRequest().permitAll()
             }.sessionManagement {

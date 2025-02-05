@@ -12,10 +12,5 @@ class AuthController {
     @GetMapping("/me")
     fun getMe(
         @AuthenticationPrincipal user: OAuth2User?,
-    ): String {
-        if (user == null) {
-            throw NullPointerException("User is null")
-        }
-        return user.attributes["login"].toString()
-    }
+    ): String = user?.attributes?.get("login")?.toString() ?: ""
 }
