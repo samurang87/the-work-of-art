@@ -6,5 +6,5 @@ data class MaterialResponse(
     val brand: String? = null,
     val line: String? = null,
     val type: String? = null,
-    val medium: String? = null
+    val medium: String? = null,
 )

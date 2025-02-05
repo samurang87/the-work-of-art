@@ -1,6 +1,8 @@
 package de.neuefische.backend.common
 
-enum class Medium (val lowercase: String){
+enum class Medium(
+    val lowercase: String,
+) {
     ACRYLIC("acrylic"),
     CHARCOAL("charcoal"),
     COLOR_PENCILS("color pencils"),
@@ -16,6 +18,4 @@ enum class Medium (val lowercase: String){
     WATERCOLORS("watercolors"),
 }
 
-fun String.toMedium(): Medium? {
-    return Medium.entries.find { it.name.equals(this, ignoreCase = true) }
-}
+fun String.toMedium(): Medium? = Medium.entries.find { it.name.equals(this, ignoreCase = true) }

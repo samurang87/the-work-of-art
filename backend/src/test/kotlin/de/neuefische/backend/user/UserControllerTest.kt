@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @SpringBootTest
 @AutoConfigureMockMvc
 class UserControllerTest {
-
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -27,15 +26,18 @@ class UserControllerTest {
     @Test
     fun getUserByName() {
         // Given
-        val user = User(
-            id = BsonObjectId(),
-            name = "test-user",
-            bio = "test-bio",
-            imageUrl = "test-image-url",
-            mediums = listOf(
-                Medium.WATERCOLORS, Medium.INK,
+        val user =
+            User(
+                id = BsonObjectId(),
+                name = "test-user",
+                bio = "test-bio",
+                imageUrl = "test-image-url",
+                mediums =
+                    listOf(
+                        Medium.WATERCOLORS,
+                        Medium.INK,
+                    ),
             )
-        )
 
         every { userRepo.findByName("test-user") } returns user
 
@@ -43,7 +45,8 @@ class UserControllerTest {
         val result = mockMvc.perform(get("/api/user/").param("name", "test-user"))
 
         // Then
-        result.andExpect(status().isOk)
+        result
+            .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").isNotEmpty())
             .andExpect(jsonPath("$.name").value("test-user"))
             .andExpect(jsonPath("$.bio").value("test-bio"))
@@ -56,10 +59,11 @@ class UserControllerTest {
     @Test
     fun getUserByNameWithoutOptionalFields() {
         // Given
-        val user = User(
-            id = BsonObjectId(),
-            name = "test-user",
-        )
+        val user =
+            User(
+                id = BsonObjectId(),
+                name = "test-user",
+            )
 
         every { userRepo.findByName("test-user") } returns user
 
@@ -67,7 +71,8 @@ class UserControllerTest {
         val result = mockMvc.perform(get("/api/user/").param("name", "test-user"))
 
         // Then
-        result.andExpect(status().isOk)
+        result
+            .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").isNotEmpty())
             .andExpect(jsonPath("$.name").value("test-user"))
             .andExpect(jsonPath("$.bio").value(null))
@@ -92,15 +97,18 @@ class UserControllerTest {
     fun getUserById() {
         // Given
         val userId = BsonObjectId()
-        val user = User(
-            id = userId,
-            name = "test-user",
-            bio = "test-bio",
-            imageUrl = "test-image-url",
-            mediums = listOf(
-                Medium.WATERCOLORS, Medium.INK,
+        val user =
+            User(
+                id = userId,
+                name = "test-user",
+                bio = "test-bio",
+                imageUrl = "test-image-url",
+                mediums =
+                    listOf(
+                        Medium.WATERCOLORS,
+                        Medium.INK,
+                    ),
             )
-        )
 
         every { userRepo.findByIdOrNull(userId.value.toString()) } returns user
 
@@ -108,7 +116,8 @@ class UserControllerTest {
         val result = mockMvc.perform(get("/api/user/").param("id", userId.value.toString()))
 
         // Then
-        result.andExpect(status().isOk)
+        result
+            .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(userId.value.toString()))
             .andExpect(jsonPath("$.name").value("test-user"))
             .andExpect(jsonPath("$.bio").value("test-bio"))
@@ -122,10 +131,11 @@ class UserControllerTest {
     fun getUserByIdWithoutOptionalFields() {
         // Given
         val userId = BsonObjectId()
-        val user = User(
-            id = userId,
-            name = "test-user",
-        )
+        val user =
+            User(
+                id = userId,
+                name = "test-user",
+            )
 
         every { userRepo.findByIdOrNull(userId.value.toString()) } returns user
 
@@ -133,7 +143,8 @@ class UserControllerTest {
         val result = mockMvc.perform(get("/api/user/").param("id", userId.value.toString()))
 
         // Then
-        result.andExpect(status().isOk)
+        result
+            .andExpect(status().isOk)
             .andExpect(jsonPath("$.id").value(userId.value.toString()))
             .andExpect(jsonPath("$.name").value("test-user"))
             .andExpect(jsonPath("$.bio").value(null))
@@ -163,5 +174,4 @@ class UserControllerTest {
         // Then
         result.andExpect(status().isBadRequest)
     }
-
 }
