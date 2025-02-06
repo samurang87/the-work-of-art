@@ -1,7 +1,21 @@
-export default function Header() {
+import { MouseEvent } from "react";
+
+type HeaderProps = {
+  logout: () => void;
+};
+
+export default function Header({ logout }: HeaderProps) {
   const navLinks = [
     { name: "Feed", path: "/feed" },
     { name: "Profile", path: "/user/alice_jones" }, // TODO: replace with actual username from oauth
+    {
+      name: "Logout",
+      path: "#",
+      onClick: (e: MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        logout();
+      },
+    },
   ];
 
   return (
@@ -24,6 +38,7 @@ export default function Header() {
                 key={link.name}
                 href={link.path}
                 className="text-gray-600 hover:text-gray-900 transition-colors"
+                onClick={link.onClick}
               >
                 {link.name}
               </a>

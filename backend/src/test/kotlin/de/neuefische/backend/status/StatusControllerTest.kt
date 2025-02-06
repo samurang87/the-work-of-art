@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
+// WithMockUser is not applied here - it should be kept open
 @SpringBootTest
 @AutoConfigureMockMvc
 class StatusControllerTest {
