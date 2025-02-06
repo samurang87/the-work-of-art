@@ -3,6 +3,7 @@ package de.neuefische.backend.user
 import de.neuefische.backend.common.Medium
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.bson.BsonObjectId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -13,7 +14,7 @@ class UserServiceTest {
     private val userService = UserService(userRepo)
 
     @Test
-    fun getUserByName() {
+    fun `should return user profile when user exists by name`() {
         // Given
         val user =
             User(
@@ -44,11 +45,12 @@ class UserServiceTest {
 
         // Then
         assertEquals(expectedResponse, result)
+        verify { userRepo.findByName("test-user") }
     }
 
     // add test for nonexistent name
     @Test
-    fun getUserByNameNonExistent() {
+    fun `should return null when user does not exist by name`() {
         // Given
         every { userRepo.findByName("test-user") } returns null
 
@@ -57,10 +59,11 @@ class UserServiceTest {
 
         // Then
         assertEquals(null, result)
+        verify { userRepo.findByName("test-user") }
     }
 
     @Test
-    fun getUserById() {
+    fun `should return user profile when user exists by id`() {
         // Given
         val user =
             User(
@@ -91,11 +94,11 @@ class UserServiceTest {
 
         // Then
         assertEquals(expectedResponse, result)
+        verify { userRepo.findByIdOrNull(user.id.value.toString()) }
     }
 
-    // add test for nonexistent id
     @Test
-    fun getUserByIdNonExistent() {
+    fun `should return null when user does not exist by id`() {
         // Given
         every { userRepo.findByIdOrNull("test-id") } returns null
 
@@ -104,5 +107,6 @@ class UserServiceTest {
 
         // Then
         assertEquals(null, result)
+        verify { userRepo.findByIdOrNull("test-id") }
     }
 }
