@@ -1,4 +1,4 @@
-package de.neuefische.backend
+package de.neuefische.backend.security
 
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,5 +36,34 @@ class AuthControllerTest {
                     ),
             ).andExpect(MockMvcResultMatchers.status().isOk())
             .andExpect(MockMvcResultMatchers.content().string("user"))
+    }
+
+    @Test
+    fun me_WhenNotAuthenticated_returnsEmptyUser() {
+        mockMvc
+            .perform(MockMvcRequestBuilders.get("/api/auth/me"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().string(""))
+    }
+
+    @Test
+    @WithMockUser
+    fun me_whenLoginNotFound_returnsEmptyUser() {
+        mockMvc
+            .perform(
+                MockMvcRequestBuilders
+                    .get("/api/auth/me")
+                    .with(
+                        SecurityMockMvcRequestPostProcessors
+                            .oidcLogin()
+                            .userInfoToken { token: OidcUserInfo.Builder ->
+                                token.claim(
+                                    "login",
+                                    null,
+                                )
+                            },
+                    ),
+            ).andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.content().string(""))
     }
 }
