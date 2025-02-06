@@ -19,8 +19,7 @@ class AuthControllerTest {
 
     @Test
     @WithMockUser
-    @Throws(Exception::class)
-    fun me() {
+    fun me_whenAuthenticated_returnsUserName() {
         mockMvc
             .perform(
                 MockMvcRequestBuilders
