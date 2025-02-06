@@ -28,4 +28,17 @@ class UserService(
                 mediums = user.mediums?.map { it.lowercase } ?: emptyList(),
             )
         }
+
+    private fun createUser(oauthUsername: String): User {
+        val user =
+            User(
+                name = oauthUsername,
+                bio = "",
+                imageUrl = "",
+                mediums = emptyList(),
+            )
+        return userRepo.save(user)
+    }
+
+    fun findOrCreateUser(oauthUsername: String): User = userRepo.findByName(oauthUsername) ?: createUser(oauthUsername)
 }
