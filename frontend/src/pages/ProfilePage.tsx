@@ -1,12 +1,21 @@
 import UserProfile from "../components/ProfileComponent.tsx";
 import { useParams } from "react-router-dom";
 
-export default function ProfilePage() {
-  const { username } = useParams<{ username?: string }>(); // in case undefined
+type ProfilePageProps = {
+  username: string | undefined;
+};
+
+export default function ProfilePage({ username }: ProfilePageProps) {
+  const { username: paramUsername } = useParams<{ username: string }>();
+  const displayUsername = paramUsername || username;
+
+  if (!displayUsername) {
+    return <div>User not found</div>;
+  }
 
   return (
     <div>
-      <UserProfile username={username} />
+      <UserProfile username={displayUsername} />
     </div>
   );
 }
