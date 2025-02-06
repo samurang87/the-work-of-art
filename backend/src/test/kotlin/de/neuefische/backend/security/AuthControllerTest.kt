@@ -19,7 +19,7 @@ class AuthControllerTest {
 
     @Test
     @WithMockUser
-    fun me_whenAuthenticated_returnsUserName() {
+    fun `should return user name when authenticated`() {
         mockMvc
             .perform(
                 MockMvcRequestBuilders
@@ -39,7 +39,7 @@ class AuthControllerTest {
     }
 
     @Test
-    fun me_WhenNotAuthenticated_returnsEmptyUser() {
+    fun `should return empty string when not authenticated`() {
         mockMvc
             .perform(MockMvcRequestBuilders.get("/api/auth/me"))
             .andExpect(MockMvcResultMatchers.status().isOk())
@@ -48,7 +48,7 @@ class AuthControllerTest {
 
     @Test
     @WithMockUser
-    fun me_whenLoginNotFound_returnsEmptyUser() {
+    fun `should return empty string when login not found`() {
         mockMvc
             .perform(
                 MockMvcRequestBuilders
