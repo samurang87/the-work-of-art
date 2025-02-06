@@ -3,6 +3,7 @@ package de.neuefische.backend.user
 import de.neuefische.backend.common.Medium
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.bson.BsonObjectId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -13,7 +14,7 @@ class UserServiceTest {
     private val userService = UserService(userRepo)
 
     @Test
-    fun getUserByName() {
+    fun `should return user profile when user exists by name`() {
         // Given
         val user =
             User(
@@ -44,11 +45,12 @@ class UserServiceTest {
 
         // Then
         assertEquals(expectedResponse, result)
+        verify { userRepo.findByName("test-user") }
     }
 
     // add test for nonexistent name
     @Test
-    fun getUserByNameNonExistent() {
+    fun `should return null when user does not exist by name`() {
         // Given
         every { userRepo.findByName("test-user") } returns null
 
@@ -57,10 +59,11 @@ class UserServiceTest {
 
         // Then
         assertEquals(null, result)
+        verify { userRepo.findByName("test-user") }
     }
 
     @Test
-    fun getUserById() {
+    fun `should return user profile when user exists by id`() {
         // Given
         val user =
             User(
@@ -91,11 +94,11 @@ class UserServiceTest {
 
         // Then
         assertEquals(expectedResponse, result)
+        verify { userRepo.findByIdOrNull(user.id.value.toString()) }
     }
 
-    // add test for nonexistent id
     @Test
-    fun getUserByIdNonExistent() {
+    fun `should return null when user does not exist by id`() {
         // Given
         every { userRepo.findByIdOrNull("test-id") } returns null
 
@@ -104,5 +107,46 @@ class UserServiceTest {
 
         // Then
         assertEquals(null, result)
+        verify { userRepo.findByIdOrNull("test-id") }
+    }
+
+    @Test
+    fun `should create user if it does not exist`() {
+        // Given
+        every { userRepo.findByName("test-user") } returns null
+        every { userRepo.save(any()) } answers { firstArg() }
+
+        // When
+        val result: User = userService.findOrCreateUser("test-user")
+
+        // Then
+        assertEquals("test-user", result.name)
+        verify { userRepo.save(any()) }
+    }
+
+    @Test
+    fun `should return user if it exists`() {
+        // Given
+        val user =
+            User(
+                id = BsonObjectId(),
+                name = "test-user",
+                bio = "test-bio",
+                imageUrl = "test-image-url",
+                mediums =
+                    listOf(
+                        Medium.WATERCOLORS,
+                        Medium.INK,
+                    ),
+            )
+
+        every { userRepo.findByName("test-user") } returns user
+
+        // When
+        val result: User = userService.findOrCreateUser("test-user")
+
+        // Then
+        assertEquals("test-user", result.name)
+        verify(exactly = 0) { userRepo.save(any()) }
     }
 }
