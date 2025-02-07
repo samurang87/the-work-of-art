@@ -22,4 +22,12 @@ class GlobalExceptionHandler {
             status = HttpStatus.BAD_REQUEST,
             message = exception.message ?: "Bad request",
         )
+
+    @ExceptionHandler()
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    fun handleNotFoundException(exception: NoSuchElementException): ErrorMessage =
+        ErrorMessage(
+            status = HttpStatus.NOT_FOUND,
+            message = exception.message ?: "Not found",
+        )
 }

@@ -1,5 +1,6 @@
 package de.neuefische.backend.user
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import de.neuefische.backend.common.Medium
 import org.bson.BsonObjectId
 import org.junit.jupiter.api.AfterEach
@@ -8,9 +9,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
@@ -89,7 +92,7 @@ class UserControllerTest {
     }
 
     @Test
-    fun `should return not found when user by name does not exist`() {
+    fun `get should return not found when user by name does not exist`() {
         // When
         val result = mockMvc.perform(get("/api/user/").param("name", "test-user"))
 
@@ -173,5 +176,75 @@ class UserControllerTest {
 
         // Then
         result.andExpect(status().isBadRequest)
+    }
+
+    // --- PUT /api/user/{id} ---
+
+    @Test
+    fun `should update user by id`() {
+        // Given
+        val userId = BsonObjectId()
+        val user =
+            User(
+                id = userId,
+                name = "test-user",
+                bio = "test-bio",
+                imageUrl = "test-image-url",
+                mediums = listOf(Medium.WATERCOLORS, Medium.INK),
+            )
+        userRepo.save(user)
+
+        val req =
+            UserProfileUpdateRequest(
+                bio = "updated-bio",
+                imageUrl = "updated-image-url",
+                mediums = listOf("acrylic", "oil"),
+            )
+
+        // When
+        val result =
+            mockMvc.perform(
+                put("/api/user/{id}", userId.value.toString())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        ObjectMapper().writeValueAsString(req),
+                    ),
+            )
+
+        // Then
+        result
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(userId.value.toString()))
+            .andExpect(jsonPath("$.name").value("test-user"))
+            .andExpect(jsonPath("$.bio").value("updated-bio"))
+            .andExpect(jsonPath("$.imageUrl").value("updated-image-url"))
+            .andExpect(jsonPath("$.mediums").isArray)
+            .andExpect(jsonPath("$.mediums[0]").value("acrylic"))
+            .andExpect(jsonPath("$.mediums[1]").value("oil"))
+    }
+
+    @Test
+    fun `put should return not found when user by id does not exist`() {
+        // Given
+        val userId = BsonObjectId()
+        val req =
+            UserProfileUpdateRequest(
+                bio = "updated-bio",
+                imageUrl = "updated-image-url",
+                mediums = listOf("acrylics", "oil"),
+            )
+
+        // When
+        val result =
+            mockMvc.perform(
+                put("/api/user/{id}", userId.value.toString())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        ObjectMapper().writeValueAsString(req),
+                    ),
+            )
+
+        // Then
+        result.andExpect(status().isNotFound)
     }
 }
