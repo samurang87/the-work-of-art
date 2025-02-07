@@ -11,7 +11,7 @@ export enum Medium {
   PAN_PASTELS = "pan pastels",
   PASTELS = "pastels",
   PENCILS = "pencils",
-  WATERCOLORS = "watercolor",
+  WATERCOLORS = "watercolors",
 }
 
 export type User = {
