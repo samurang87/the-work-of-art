@@ -38,12 +38,4 @@ class GlobalExceptionHandler {
             status = HttpStatus.FORBIDDEN,
             message = exception.message ?: "Access denied",
         )
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    fun handleUnauthorizedException(exception: UnauthorizedException): ErrorMessage =
-        ErrorMessage(
-            status = HttpStatus.UNAUTHORIZED,
-            message = exception.message ?: "Unauthorized",
-        )
 }

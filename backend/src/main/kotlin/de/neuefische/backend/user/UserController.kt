@@ -45,11 +45,7 @@ class UserController(
         @PathVariable id: String,
         @RequestBody req: UserProfileUpdateRequest,
     ): ResponseEntity<UserProfileResponse> {
-        val currentUser =
-            securityService.getCurrentUsername() ?: return ResponseEntity
-                .status(
-                    HttpStatus.UNAUTHORIZED,
-                ).build()
+        val currentUser = securityService.getCurrentUsername() ?: ""
         try {
             val updatedUser = userService.updateUser(id, req, currentUser)
             return ResponseEntity.ok(
