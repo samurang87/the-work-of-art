@@ -47,7 +47,9 @@ class UserService(
         userId: String,
         req: UserProfileUpdateRequest,
     ): User {
-        val user = userRepo.findByIdOrNull(userId) ?: throw IllegalArgumentException("User not found")
+        val user =
+            userRepo.findByIdOrNull(userId)
+                ?: throw IllegalArgumentException("User not found")
 
         val updatedUser =
             user.copy(
