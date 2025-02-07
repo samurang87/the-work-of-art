@@ -30,4 +30,20 @@ class GlobalExceptionHandler {
             status = HttpStatus.NOT_FOUND,
             message = exception.message ?: "Not found",
         )
+
+    @ExceptionHandler()
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    fun handleAccessDeniedException(exception: AccessDeniedException): ErrorMessage =
+        ErrorMessage(
+            status = HttpStatus.FORBIDDEN,
+            message = exception.message ?: "Access denied",
+        )
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    fun handleUnauthorizedException(exception: UnauthorizedException): ErrorMessage =
+        ErrorMessage(
+            status = HttpStatus.UNAUTHORIZED,
+            message = exception.message ?: "Unauthorized",
+        )
 }

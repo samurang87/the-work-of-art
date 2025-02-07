@@ -6,18 +6,27 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.bson.BsonObjectId
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.access.AccessDeniedException
+import org.springframework.security.core.context.SecurityContextHolder
 import java.util.stream.Stream
 import kotlin.test.assertFailsWith
 
 class UserServiceTest {
     private val userRepo = mockk<UserRepo>()
     private val userService = UserService(userRepo)
+
+    @AfterEach
+    fun tearDown() {
+        SecurityContextHolder.clearContext()
+    }
 
     @Test
     fun `should return user profile when user exists by name`() {
@@ -222,7 +231,8 @@ class UserServiceTest {
         every { userRepo.save(any()) } returns expectedUser
 
         // When
-        val result = userService.updateUser(userId.toString(), updateRequest)
+        val result =
+            userService.updateUser(userId.toString(), updateRequest, "existing-user")
 
         // Then
         assertEquals(expectedUser, result)
@@ -245,9 +255,39 @@ class UserServiceTest {
         // When / Then
         val exception =
             assertFailsWith<NotFoundException> {
-                userService.updateUser(userId, updateRequest)
+                userService.updateUser(userId, updateRequest, "existing-user")
             }
         assertEquals("User $userId not found", exception.message)
         verify(exactly = 0) { userRepo.save(any()) }
+    }
+
+    @Test
+    fun `should throw exception when updating different user's profile`() {
+        // Given
+        val userId = BsonObjectId()
+
+        val existingUser =
+            User(
+                id = userId,
+                name = "existing-user",
+                bio = "existing-bio",
+                imageUrl = "existing-image-url",
+                mediums = listOf(Medium.WATERCOLORS),
+            )
+
+        every { userRepo.findByIdOrNull(userId.toString()) } returns existingUser
+
+        // Then
+        assertThrows<AccessDeniedException> {
+            userService.updateUser(
+                userId.toString(),
+                UserProfileUpdateRequest(
+                    bio = "updated-bio",
+                    imageUrl = "updated-image-url",
+                    mediums = listOf("ink"),
+                ),
+                "different-user",
+            )
+        }
     }
 }

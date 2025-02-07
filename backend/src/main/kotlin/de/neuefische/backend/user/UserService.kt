@@ -3,6 +3,7 @@ package de.neuefische.backend.user
 import de.neuefische.backend.common.toMedium
 import de.neuefische.backend.exceptions.NotFoundException
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 
 @Service
@@ -47,10 +48,15 @@ class UserService(
     fun updateUser(
         userId: String,
         req: UserProfileUpdateRequest,
+        currentUser: String,
     ): User {
         val user =
             userRepo.findByIdOrNull(userId)
                 ?: throw NotFoundException("User $userId not found")
+
+        if (currentUser != user.name) {
+            throw AccessDeniedException("You can only update your own profile")
+        }
 
         val updatedUser =
             user.copy(

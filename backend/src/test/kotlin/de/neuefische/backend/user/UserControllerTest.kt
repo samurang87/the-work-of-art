@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
-import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
@@ -19,7 +19,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@WithMockUser
 class UserControllerTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
@@ -53,7 +52,10 @@ class UserControllerTest {
         userRepo.save(user)
 
         // When
-        val result = mockMvc.perform(get("/api/user/").param("name", "test-user"))
+        val result =
+            mockMvc.perform(
+                get("/api/user/").with(oauth2Login()).param("name", "test-user"),
+            )
 
         // Then
         result
@@ -78,7 +80,10 @@ class UserControllerTest {
         userRepo.save(user)
 
         // When
-        val result = mockMvc.perform(get("/api/user/").param("name", "test-user"))
+        val result =
+            mockMvc.perform(
+                get("/api/user/").with(oauth2Login()).param("name", "test-user"),
+            )
 
         // Then
         result
@@ -94,7 +99,10 @@ class UserControllerTest {
     @Test
     fun `get should return not found when user by name does not exist`() {
         // When
-        val result = mockMvc.perform(get("/api/user/").param("name", "test-user"))
+        val result =
+            mockMvc.perform(
+                get("/api/user/").with(oauth2Login()).param("name", "test-user"),
+            )
 
         // Then
         result.andExpect(status().isNotFound)
@@ -116,7 +124,11 @@ class UserControllerTest {
 
         // When
         val result =
-            mockMvc.perform(get("/api/user/").param("id", userId.value.toString()))
+            mockMvc.perform(
+                get("/api/user/")
+                    .with(oauth2Login())
+                    .param("id", userId.value.toString()),
+            )
 
         // Then
         result
@@ -143,7 +155,11 @@ class UserControllerTest {
 
         // When
         val result =
-            mockMvc.perform(get("/api/user/").param("id", userId.value.toString()))
+            mockMvc.perform(
+                get("/api/user/")
+                    .with(oauth2Login())
+                    .param("id", userId.value.toString()),
+            )
 
         // Then
         result
@@ -163,7 +179,11 @@ class UserControllerTest {
 
         // When
         val result =
-            mockMvc.perform(get("/api/user/").param("id", userId.value.toString()))
+            mockMvc.perform(
+                get("/api/user/")
+                    .with(oauth2Login())
+                    .param("id", userId.value.toString()),
+            )
 
         // Then
         result.andExpect(status().isNotFound)
@@ -172,7 +192,7 @@ class UserControllerTest {
     @Test
     fun `should return bad request when no parameters are provided`() {
         // When
-        val result = mockMvc.perform(get("/api/user/"))
+        val result = mockMvc.perform(get("/api/user/").with(oauth2Login()))
 
         // Then
         result.andExpect(status().isBadRequest)
@@ -208,6 +228,10 @@ class UserControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         ObjectMapper().writeValueAsString(req),
+                    ).with(
+                        oauth2Login().attributes { attrs ->
+                            attrs["login"] = "test-user"
+                        },
                     ),
             )
 
@@ -241,10 +265,77 @@ class UserControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(
                         ObjectMapper().writeValueAsString(req),
+                    ).with(
+                        oauth2Login().attributes { attrs ->
+                            attrs["login"] = "test-user"
+                        },
                     ),
             )
 
         // Then
         result.andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `put should return unauthorized when user is not authenticated`() {
+        // Given
+        val userId = BsonObjectId()
+        val req =
+            UserProfileUpdateRequest(
+                bio = "updated-bio",
+                imageUrl = "updated-image-url",
+                mediums = listOf("acrylics", "oil"),
+            )
+
+        // When
+        val result =
+            mockMvc.perform(
+                put("/api/user/{id}", userId.value.toString())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        ObjectMapper().writeValueAsString(req),
+                    ),
+            )
+
+        // Then
+        result.andExpect(status().isUnauthorized)
+    }
+
+    @Test
+    fun `put should return forbidden when user is not authorized`() {
+        // Given
+        val userId = BsonObjectId()
+        val user =
+            User(
+                id = userId,
+                name = "test-user",
+                bio = "test-bio",
+                imageUrl = "test-image-url",
+                mediums = listOf(Medium.WATERCOLORS, Medium.INK),
+            )
+        userRepo.save(user)
+        val req =
+            UserProfileUpdateRequest(
+                bio = "updated-bio",
+                imageUrl = "updated-image-url",
+                mediums = listOf("acrylics", "oil"),
+            )
+
+        // When
+        val result =
+            mockMvc.perform(
+                put("/api/user/{id}", userId.value.toString())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        ObjectMapper().writeValueAsString(req),
+                    ).with(
+                        oauth2Login().attributes { attrs ->
+                            attrs["login"] = "another-user"
+                        },
+                    ),
+            )
+
+        // Then
+        result.andExpect(status().isForbidden)
     }
 }
