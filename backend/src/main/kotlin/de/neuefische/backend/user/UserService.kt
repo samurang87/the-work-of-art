@@ -1,5 +1,6 @@
 package de.neuefische.backend.user
 
+import de.neuefische.backend.common.toMedium
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -41,4 +42,20 @@ class UserService(
     }
 
     fun findOrCreateUser(oauthUsername: String): User = userRepo.findByName(oauthUsername) ?: createUser(oauthUsername)
+
+    fun updateUser(
+        userId: String,
+        req: UserProfileUpdateRequest,
+    ): User {
+        val user = userRepo.findByIdOrNull(userId) ?: throw IllegalArgumentException("User not found")
+
+        val updatedUser =
+            user.copy(
+                bio = req.bio,
+                imageUrl = req.imageUrl,
+                mediums = req.mediums.mapNotNull { it.toMedium() },
+            )
+
+        return userRepo.save(updatedUser)
+    }
 }

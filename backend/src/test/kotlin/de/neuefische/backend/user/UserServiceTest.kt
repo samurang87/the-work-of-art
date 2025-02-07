@@ -7,7 +7,12 @@ import io.mockk.verify
 import org.bson.BsonObjectId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.data.repository.findByIdOrNull
+import java.util.stream.Stream
+import kotlin.test.assertFailsWith
 
 class UserServiceTest {
     private val userRepo = mockk<UserRepo>()
@@ -147,6 +152,101 @@ class UserServiceTest {
 
         // Then
         assertEquals("test-user", result.name)
+        verify(exactly = 0) { userRepo.save(any()) }
+    }
+
+    companion object {
+        @JvmStatic
+        fun provideUpdateRequests(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of(
+                    UserProfileUpdateRequest(
+                        bio = "updated-bio",
+                        imageUrl = "updated-image-url",
+                        mediums = listOf("ink"),
+                    ),
+                    listOf(Medium.INK),
+                ),
+                Arguments.of(
+                    UserProfileUpdateRequest(
+                        bio = null,
+                        imageUrl = "updated-image-url",
+                        mediums = listOf("ink"),
+                    ),
+                    listOf(Medium.INK),
+                ),
+                Arguments.of(
+                    UserProfileUpdateRequest(
+                        bio = "updated-bio",
+                        imageUrl = null,
+                        mediums = listOf("ink"),
+                    ),
+                    listOf(Medium.INK),
+                ),
+                Arguments.of(
+                    UserProfileUpdateRequest(
+                        bio = "updated-bio",
+                        imageUrl = "updated-image-url",
+                        mediums = emptyList(),
+                    ),
+                    emptyList<Medium>(),
+                ),
+            )
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideUpdateRequests")
+    fun `should update user with various payloads`(
+        updateRequest: UserProfileUpdateRequest,
+        expectedMediums: List<Medium>,
+    ) {
+        // Given
+        val userId = BsonObjectId()
+        val existingUser =
+            User(
+                id = userId,
+                name = "existing-user",
+                bio = "existing-bio",
+                imageUrl = "existing-image-url",
+                mediums = listOf(Medium.WATERCOLORS),
+            )
+        val expectedUser =
+            existingUser.copy(
+                bio = updateRequest.bio,
+                imageUrl = updateRequest.imageUrl,
+                mediums = expectedMediums,
+            )
+
+        every { userRepo.findByIdOrNull(userId.toString()) } returns existingUser
+        every { userRepo.save(any()) } returns expectedUser
+
+        // When
+        val result = userService.updateUser(userId.toString(), updateRequest)
+
+        // Then
+        assertEquals(expectedUser, result)
+        verify { userRepo.save(expectedUser) }
+    }
+
+    @Test
+    fun `should throw exception for nonexistent user`() {
+        // Given
+        val userId = BsonObjectId().value.toString()
+        val updateRequest =
+            UserProfileUpdateRequest(
+                bio = "updated-bio",
+                imageUrl = "updated-image-url",
+                mediums = listOf("ink"),
+            )
+
+        every { userRepo.findByIdOrNull(userId) } returns null
+
+        // When / Then
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                userService.updateUser(userId, updateRequest)
+            }
+        assertEquals("User not found", exception.message)
         verify(exactly = 0) { userRepo.save(any()) }
     }
 }
