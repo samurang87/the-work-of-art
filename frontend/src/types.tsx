@@ -22,6 +22,12 @@ export type User = {
   mediums: Medium[];
 };
 
+export type UserEditRequestPayload = {
+  bio: string | null;
+  imageUrl: string | null;
+  mediums: Medium[];
+};
+
 export type Material = {
   name: string;
   identifier: string | null;

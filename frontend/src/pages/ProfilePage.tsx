@@ -14,7 +14,7 @@ export default function ProfilePage({ username }: ProfilePageProps) {
   }
 
   return (
-    <div>
+    <div className="container mx-auto px-4 mt-24 pb-24">
       <UserProfile username={displayUsername} />
     </div>
   );
