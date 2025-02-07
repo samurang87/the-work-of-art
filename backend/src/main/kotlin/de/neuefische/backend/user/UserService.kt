@@ -1,6 +1,7 @@
 package de.neuefische.backend.user
 
 import de.neuefische.backend.common.toMedium
+import de.neuefische.backend.exceptions.NotFoundException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -49,7 +50,7 @@ class UserService(
     ): User {
         val user =
             userRepo.findByIdOrNull(userId)
-                ?: throw IllegalArgumentException("User not found")
+                ?: throw NotFoundException("User $userId not found")
 
         val updatedUser =
             user.copy(

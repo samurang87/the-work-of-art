@@ -1,6 +1,7 @@
 package de.neuefische.backend.user
 
 import de.neuefische.backend.common.Medium
+import de.neuefische.backend.exceptions.NotFoundException
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -243,10 +244,10 @@ class UserServiceTest {
 
         // When / Then
         val exception =
-            assertFailsWith<IllegalArgumentException> {
+            assertFailsWith<NotFoundException> {
                 userService.updateUser(userId, updateRequest)
             }
-        assertEquals("User not found", exception.message)
+        assertEquals("User $userId not found", exception.message)
         verify(exactly = 0) { userRepo.save(any()) }
     }
 }
