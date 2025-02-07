@@ -1,14 +1,13 @@
 package de.neuefische.backend.user
 
-import com.ninjasquad.springmockk.MockkBean
 import de.neuefische.backend.common.Medium
-import io.mockk.every
 import org.bson.BsonObjectId
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -22,8 +21,18 @@ class UserControllerTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
 
-    @MockkBean
+    @Autowired
     private lateinit var userRepo: UserRepo
+
+    @BeforeEach
+    fun setUp() {
+        userRepo.deleteAll()
+    }
+
+    @AfterEach
+    fun tearDown() {
+        userRepo.deleteAll()
+    }
 
     @Test
     fun getUserByName() {
@@ -34,14 +43,9 @@ class UserControllerTest {
                 name = "test-user",
                 bio = "test-bio",
                 imageUrl = "test-image-url",
-                mediums =
-                    listOf(
-                        Medium.WATERCOLORS,
-                        Medium.INK,
-                    ),
+                mediums = listOf(Medium.WATERCOLORS, Medium.INK),
             )
-
-        every { userRepo.findByName("test-user") } returns user
+        userRepo.save(user)
 
         // When
         val result = mockMvc.perform(get("/api/user/").param("name", "test-user"))
@@ -66,8 +70,7 @@ class UserControllerTest {
                 id = BsonObjectId(),
                 name = "test-user",
             )
-
-        every { userRepo.findByName("test-user") } returns user
+        userRepo.save(user)
 
         // When
         val result = mockMvc.perform(get("/api/user/").param("name", "test-user"))
@@ -85,9 +88,6 @@ class UserControllerTest {
 
     @Test
     fun getUserByNameReturnsNotFound() {
-        // Given
-        every { userRepo.findByName("test-user") } returns null
-
         // When
         val result = mockMvc.perform(get("/api/user/").param("name", "test-user"))
 
@@ -105,14 +105,9 @@ class UserControllerTest {
                 name = "test-user",
                 bio = "test-bio",
                 imageUrl = "test-image-url",
-                mediums =
-                    listOf(
-                        Medium.WATERCOLORS,
-                        Medium.INK,
-                    ),
+                mediums = listOf(Medium.WATERCOLORS, Medium.INK),
             )
-
-        every { userRepo.findByIdOrNull(userId.value.toString()) } returns user
+        userRepo.save(user)
 
         // When
         val result = mockMvc.perform(get("/api/user/").param("id", userId.value.toString()))
@@ -138,8 +133,7 @@ class UserControllerTest {
                 id = userId,
                 name = "test-user",
             )
-
-        every { userRepo.findByIdOrNull(userId.value.toString()) } returns user
+        userRepo.save(user)
 
         // When
         val result = mockMvc.perform(get("/api/user/").param("id", userId.value.toString()))
@@ -159,7 +153,6 @@ class UserControllerTest {
     fun getUserByIdReturnsNotFound() {
         // Given
         val userId = BsonObjectId()
-        every { userRepo.findByIdOrNull(userId.value.toString()) } returns null
 
         // When
         val result = mockMvc.perform(get("/api/user/").param("id", userId.value.toString()))
