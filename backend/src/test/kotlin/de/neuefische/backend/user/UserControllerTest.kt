@@ -34,8 +34,10 @@ class UserControllerTest {
         userRepo.deleteAll()
     }
 
+    // --- GET /api/user/ ---
+
     @Test
-    fun getUserByName() {
+    fun `should return user by name`() {
         // Given
         val user =
             User(
@@ -63,7 +65,7 @@ class UserControllerTest {
     }
 
     @Test
-    fun getUserByNameWithoutOptionalFields() {
+    fun `should return user by name without optional fields`() {
         // Given
         val user =
             User(
@@ -87,7 +89,7 @@ class UserControllerTest {
     }
 
     @Test
-    fun getUserByNameReturnsNotFound() {
+    fun `should return not found when user by name does not exist`() {
         // When
         val result = mockMvc.perform(get("/api/user/").param("name", "test-user"))
 
@@ -96,7 +98,7 @@ class UserControllerTest {
     }
 
     @Test
-    fun getUserById() {
+    fun `should return user by id`() {
         // Given
         val userId = BsonObjectId()
         val user =
@@ -110,7 +112,8 @@ class UserControllerTest {
         userRepo.save(user)
 
         // When
-        val result = mockMvc.perform(get("/api/user/").param("id", userId.value.toString()))
+        val result =
+            mockMvc.perform(get("/api/user/").param("id", userId.value.toString()))
 
         // Then
         result
@@ -125,7 +128,7 @@ class UserControllerTest {
     }
 
     @Test
-    fun getUserByIdWithoutOptionalFields() {
+    fun `should return user by id without optional fields`() {
         // Given
         val userId = BsonObjectId()
         val user =
@@ -136,7 +139,8 @@ class UserControllerTest {
         userRepo.save(user)
 
         // When
-        val result = mockMvc.perform(get("/api/user/").param("id", userId.value.toString()))
+        val result =
+            mockMvc.perform(get("/api/user/").param("id", userId.value.toString()))
 
         // Then
         result
@@ -150,19 +154,20 @@ class UserControllerTest {
     }
 
     @Test
-    fun getUserByIdReturnsNotFound() {
+    fun `should return not found when user by id does not exist`() {
         // Given
         val userId = BsonObjectId()
 
         // When
-        val result = mockMvc.perform(get("/api/user/").param("id", userId.value.toString()))
+        val result =
+            mockMvc.perform(get("/api/user/").param("id", userId.value.toString()))
 
         // Then
         result.andExpect(status().isNotFound)
     }
 
     @Test
-    fun getUserWithoutParametersReturnsBadRequest() {
+    fun `should return bad request when no parameters are provided`() {
         // When
         val result = mockMvc.perform(get("/api/user/"))
 
