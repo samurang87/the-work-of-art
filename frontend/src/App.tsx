@@ -11,13 +11,15 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 function App() {
-  const [username, setUsername] = useState<string | undefined>();
+  const [loggedInUsername, setLoggedInUsername] = useState<
+    string | undefined
+  >();
   const navigate = useNavigate();
 
   async function loadUser() {
     try {
       const response = await axios.get<string>("/api/auth/me");
-      setUsername(response.data);
+      setLoggedInUsername(response.data);
     } catch (error) {
       console.error("Failed to load user", error);
     }
@@ -25,7 +27,7 @@ function App() {
 
   function logout() {
     localStorage.removeItem("token");
-    setUsername(undefined);
+    setLoggedInUsername(undefined);
     void navigate("/");
   }
 
@@ -35,13 +37,19 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header logout={logout} username={username} />
+      <Header logout={logout} username={loggedInUsername} />
       <main className="container mx-auto px-4 py-8 mt-16">
         <Routes>
-          <Route path="/" element={<LandingPage username={username} />} />
-          <Route element={<ProtectedRoutes username={username} />}>
+          <Route
+            path="/"
+            element={<LandingPage username={loggedInUsername} />}
+          />
+          <Route element={<ProtectedRoutes username={loggedInUsername} />}>
             <Route path="/feed" element={<Feed />} />
-            <Route path="/user/:username?" element={<ProfilePage />} />
+            <Route
+              path="/user/:username?"
+              element={<ProfilePage loggedInUsername={loggedInUsername} />}
+            />
             <Route path="/woa/:workOfArtId?" element={<WorkOfArtPage />} />
           </Route>
         </Routes>

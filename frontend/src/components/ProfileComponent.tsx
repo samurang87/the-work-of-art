@@ -4,9 +4,13 @@ import { User, UserEditRequestPayload, Medium } from "../types.tsx";
 
 type UserProfileProps = {
   username?: string;
+  loggedInUsername?: string;
 };
 
-export default function UserProfile({ username }: UserProfileProps) {
+export default function UserProfile({
+  username,
+  loggedInUsername,
+}: UserProfileProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -82,12 +86,16 @@ export default function UserProfile({ username }: UserProfileProps) {
   if (!user)
     return <div className="mt-24 text-center">No user data available</div>;
 
+  const isOwnProfile = username === loggedInUsername;
+
   return (
     <div className="container mx-auto px-4 mt-24">
       <div className="max-w-2xl mx-auto space-y-6">
-        <button onClick={handleEdit} className="text-blue-500">
-          Edit 📝
-        </button>
+        {isOwnProfile && (
+          <button onClick={handleEdit} className="text-blue-500">
+            Edit 📝
+          </button>
+        )}
         {/* Profile Section */}
         <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
           <h2 className="text-2xl font-semibold text-gray-800">{user.name}</h2>
