@@ -4,11 +4,12 @@ type ProtectedRouteProps = {
   username: string | undefined;
 };
 
-export default function ProtectedRoutes(props: Readonly<ProtectedRouteProps>) {
-  const isLoggedIn: boolean =
-    props.username !== "" &&
-    props.username !== "anonymousUser" &&
-    props.username !== undefined;
+export default function ProtectedRoutes(
+  username: Readonly<ProtectedRouteProps>,
+) {
+  if (!username) {
+    return <Navigate to="/" replace />;
+  }
 
-  return <>{isLoggedIn ? <Outlet /> : <Navigate to={"/"} />}</>;
+  return <Outlet />;
 }

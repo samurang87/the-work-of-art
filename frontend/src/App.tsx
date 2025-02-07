@@ -35,7 +35,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header logout={logout} />
+      <Header logout={logout} username={username} />
       <main className="container mx-auto px-4 py-8 mt-16">
         <Routes>
           <Route path="/" element={<LandingPage username={username} />} />
