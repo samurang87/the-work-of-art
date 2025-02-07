@@ -6,6 +6,8 @@ import org.bson.BsonObjectId
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -16,6 +18,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.stream.Stream
+
+data class UpdateUserTestCase(
+    val mediums: List<String>,
+    val expectedMediums: List<String>,
+)
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -200,8 +208,24 @@ class UserControllerTest {
 
     // --- PUT /api/user/{id} ---
 
-    @Test
-    fun `should update user by id`() {
+    companion object {
+        @JvmStatic
+        fun updateUserTestCases(): Stream<UpdateUserTestCase> =
+            Stream.of(
+                UpdateUserTestCase(
+                    mediums = listOf("acrylic", "oil"),
+                    expectedMediums = listOf("acrylic", "oil"),
+                ),
+                UpdateUserTestCase(
+                    mediums = emptyList(),
+                    expectedMediums = emptyList(),
+                ),
+            )
+    }
+
+    @ParameterizedTest
+    @MethodSource("updateUserTestCases")
+    fun `should update user by id`(testCase: UpdateUserTestCase) {
         // Given
         val userId = BsonObjectId()
         val user =
@@ -218,7 +242,7 @@ class UserControllerTest {
             UserProfileUpdateRequest(
                 bio = "updated-bio",
                 imageUrl = "updated-image-url",
-                mediums = listOf("acrylic", "oil"),
+                mediums = testCase.mediums,
             )
 
         // When
@@ -243,8 +267,13 @@ class UserControllerTest {
             .andExpect(jsonPath("$.bio").value("updated-bio"))
             .andExpect(jsonPath("$.imageUrl").value("updated-image-url"))
             .andExpect(jsonPath("$.mediums").isArray)
-            .andExpect(jsonPath("$.mediums[0]").value("acrylic"))
-            .andExpect(jsonPath("$.mediums[1]").value("oil"))
+
+        if (testCase.expectedMediums.isEmpty()) {
+            result.andExpect(jsonPath("$.mediums").isEmpty)
+        } else {
+            result.andExpect(jsonPath("$.mediums[0]").value(testCase.expectedMediums[0]))
+            result.andExpect(jsonPath("$.mediums[1]").value(testCase.expectedMediums[1]))
+        }
     }
 
     @Test
