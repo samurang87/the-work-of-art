@@ -1,6 +1,7 @@
 package de.neuefische.backend.woa
 
 import de.neuefische.backend.common.Medium
+import de.neuefische.backend.user.User
 import org.bson.BsonObjectId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -12,6 +13,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.time.Clock
@@ -286,5 +289,106 @@ class WorkOfArtControllerTest {
                     ),
                 ),
             )
+    }
+
+    // POST /api/woa/
+    @Test
+    fun `should create new work of art with all fields`() {
+        // Given
+        val artist =
+            User(
+                id = BsonObjectId(),
+                name = "jane_snow",
+            )
+
+        val challengeId = BsonObjectId()
+
+        // When
+        val result =
+            mockMvc.perform(
+                post("/api/woa")
+                    .contentType("application/json")
+                    .content(
+                        """
+                        {
+                            "user": "${artist.id.value}",
+                            "userName": "${artist.name}",
+                            "challengeId": "${challengeId.value}",
+                            "title": "Green Evening",
+                            "description": "a green evening",
+                            "imageUrl": "https://example.com/green-evening.jpg",
+                            "medium": "watercolors",
+                            "materials": [
+                                {
+                                    "name": "Green Chromium 24",
+                                    "identifier": "24",
+                                    "brand": "Schmincke",
+                                    "line": "Horadam",
+                                    "type": "Half Pan",
+                                    "medium": "watercolors"
+                                },
+                                {
+                                    "name": "Round Brush",
+                                    "brand": "Da Vinci",
+                                    "line": "Maestro",
+                                    "type": "Paintbrush"
+                                }
+                            ]
+                        }
+                        """.trimIndent(),
+                    ),
+            )
+
+        // Then
+        val expectedId =
+            workOfArtRepo
+                .findAll()
+                .last()
+                .id.value
+                .toString()
+
+        result
+            .andExpect(status().isCreated)
+            .andExpect(header().string("Location", "/api/woa/$expectedId"))
+    }
+
+    @Test
+    fun `should create new work of art with only required fields`() {
+        // Given
+        val artist =
+            User(
+                id = BsonObjectId(),
+                name = "jane_snow",
+            )
+
+        // When
+        val result =
+            mockMvc.perform(
+                post("/api/woa")
+                    .contentType("application/json")
+                    .content(
+                        """
+                        {
+                            "user": "${artist.id.value}",
+                            "userName": "${artist.name}",
+                            "title": "Green Evening",
+                            "imageUrl": "https://example.com/green-evening.jpg",
+                            "medium": "watercolors"
+                        }
+                        """.trimIndent(),
+                    ),
+            )
+
+        // Then
+        val expectedId =
+            workOfArtRepo
+                .findAll()
+                .last()
+                .id.value
+                .toString()
+
+        result
+            .andExpect(status().isCreated)
+            .andExpect(header().string("Location", "/api/woa/$expectedId"))
     }
 }
