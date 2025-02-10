@@ -91,7 +91,7 @@ class WorkOfArtServiceTest {
                 medium = "watercolors",
                 materials =
                     listOf(
-                        MaterialResponse(
+                        MaterialDAO(
                             name = "Yellow Cadmium 24",
                             identifier = "24",
                             brand = "Schmincke",
@@ -99,7 +99,7 @@ class WorkOfArtServiceTest {
                             type = "Half Pan",
                             medium = "watercolors",
                         ),
-                        MaterialResponse(
+                        MaterialDAO(
                             name = "Round Brush",
                             brand = "Da Vinci",
                             line = "Maestro",

@@ -21,7 +21,7 @@ class WorkOfArtService(
                 medium = workOfArt.medium.lowercase,
                 materials =
                     workOfArt.materials?.map { material ->
-                        MaterialResponse(
+                        MaterialDAO(
                             name = material.name,
                             identifier = material.identifier,
                             brand = material.brand,
