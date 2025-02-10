@@ -11,12 +11,18 @@ export enum Medium {
   PAN_PASTELS = "pan pastels",
   PASTELS = "pastels",
   PENCILS = "pencils",
-  WATERCOLORS = "watercolor",
+  WATERCOLORS = "watercolors",
 }
 
 export type User = {
   id: string;
   name: string;
+  bio: string | null;
+  imageUrl: string | null;
+  mediums: Medium[];
+};
+
+export type UserEditRequestPayload = {
   bio: string | null;
   imageUrl: string | null;
   mediums: Medium[];

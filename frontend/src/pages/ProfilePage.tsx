@@ -2,20 +2,19 @@ import UserProfile from "../components/ProfileComponent.tsx";
 import { useParams } from "react-router-dom";
 
 type ProfilePageProps = {
-  username: string | undefined;
+  loggedInUsername: string | undefined;
 };
 
-export default function ProfilePage({ username }: ProfilePageProps) {
-  const { username: paramUsername } = useParams<{ username: string }>();
-  const displayUsername = paramUsername || username;
+export default function ProfilePage({ loggedInUsername }: ProfilePageProps) {
+  const { username } = useParams<{ username: string }>();
 
-  if (!displayUsername) {
+  if (!username) {
     return <div>User not found</div>;
   }
 
   return (
-    <div>
-      <UserProfile username={displayUsername} />
+    <div className="container mx-auto px-4 mt-24 pb-24">
+      <UserProfile username={username} loggedInUsername={loggedInUsername} />
     </div>
   );
 }

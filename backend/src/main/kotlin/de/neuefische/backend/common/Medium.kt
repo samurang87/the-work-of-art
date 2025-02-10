@@ -18,4 +18,4 @@ enum class Medium(
     WATERCOLORS("watercolors"),
 }
 
-fun String.toMedium(): Medium? = Medium.entries.find { it.name.equals(this, ignoreCase = true) }
+fun String.toMedium(): Medium? = Medium.entries.find { it.lowercase.equals(this, ignoreCase = true) }
