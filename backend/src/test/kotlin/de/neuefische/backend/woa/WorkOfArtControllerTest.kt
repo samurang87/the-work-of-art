@@ -99,7 +99,7 @@ class WorkOfArtControllerTest {
 
     // GET /api/woa/{id}
     @Test
-    fun getWorkOfArtById() {
+    fun `should return work of art by id`() {
         // Given
         every { workOfArtRepo.findByIdOrNull(yellowSunset.id.value.toString()) } returns yellowSunset
 
@@ -134,7 +134,7 @@ class WorkOfArtControllerTest {
     }
 
     @Test
-    fun getWorkOfArtByIdReturnsNotFound() {
+    fun `should return not found for non-existent work of art id`() {
         // Given
         val workOfArtId = BsonObjectId()
 
@@ -148,7 +148,7 @@ class WorkOfArtControllerTest {
     }
 
     @Test
-    fun getWorkOfArtByIdWithOnlyRequiredFields() {
+    fun `should return work of art by id with only required fields`() {
         // Given
         every { workOfArtRepo.findByIdOrNull(blueDawn.id.value.toString()) } returns blueDawn
 
@@ -170,8 +170,9 @@ class WorkOfArtControllerTest {
             .andExpect(jsonPath("$.createdAt").value(blueDawn.createdAt.toString()))
     }
 
+    // GET /api/woa/
     @Test
-    fun getAllWorksOfArtNoFilters() {
+    fun `should return all works of art when no filters are applied`() {
         // Given
         every { workOfArtRepo.findAll() } returns
             listOf(
@@ -210,7 +211,7 @@ class WorkOfArtControllerTest {
     }
 
     @Test
-    fun getAllWorksOfArtWithMediumsFilter() {
+    fun `should return works of art filtered by mediums`() {
         // Given
         every { workOfArtRepo.findAllByMediumIn(listOf(Medium.WATERCOLORS)) } returns
             listOf(
