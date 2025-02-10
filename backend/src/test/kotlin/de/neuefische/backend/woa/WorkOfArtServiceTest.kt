@@ -77,7 +77,7 @@ class WorkOfArtServiceTest {
         )
 
     @Test
-    fun getWorkOfArtById() {
+    fun `should return work of art by id`() {
         // Given
         val expectedResponse =
             WorkOfArtResponse(
@@ -119,7 +119,7 @@ class WorkOfArtServiceTest {
     }
 
     @Test
-    fun getWorkOfArtByIdWithOnlyRequiredFields() {
+    fun `should return work of art by id with only required fields`() {
         // Given
         val expectedResponse =
             WorkOfArtResponse(
@@ -142,7 +142,7 @@ class WorkOfArtServiceTest {
     }
 
     @Test
-    fun getAllWorksOfArtNoMediumsSpecified() {
+    fun `should return all works of art when no mediums specified`() {
         // Given
         val expectedResponse =
             listOf(
@@ -175,7 +175,12 @@ class WorkOfArtServiceTest {
                 ),
             )
 
-        every { workOfArtRepo.findAll() } returns listOf(redMidday, yellowSunset, blueDawn)
+        every { workOfArtRepo.findAll() } returns
+            listOf(
+                redMidday,
+                yellowSunset,
+                blueDawn,
+            )
 
         // When
         val result = workOfArtService.getAllWorksOfArt()
@@ -185,7 +190,7 @@ class WorkOfArtServiceTest {
     }
 
     @Test
-    fun getAllWorksOfArtWithMediumsSpecified() {
+    fun `should return all works of art with specified mediums`() {
         // Given
         val expectedResponse =
             listOf(
@@ -209,7 +214,11 @@ class WorkOfArtServiceTest {
                 ),
             )
 
-        every { workOfArtRepo.findAllByMediumIn(listOf(Medium.WATERCOLORS)) } returns listOf(redMidday, yellowSunset)
+        every { workOfArtRepo.findAllByMediumIn(listOf(Medium.WATERCOLORS)) } returns
+            listOf(
+                redMidday,
+                yellowSunset,
+            )
 
         // When
         val result = workOfArtService.getAllWorksOfArt(listOf(Medium.WATERCOLORS))
