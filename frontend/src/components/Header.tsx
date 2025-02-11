@@ -8,7 +8,8 @@ type HeaderProps = {
 export default function Header({ logout, username }: HeaderProps) {
   const navLinks = [
     { name: "Feed", path: "/feed" },
-    { name: "Profile", path: `/user/${username}` }, // TODO: replace with actual username from oauth
+    { name: "Profile", path: `/user/${username}` },
+    { name: "New WoA", path: "/woa/new" },
     {
       name: "Logout",
       path: "#",
