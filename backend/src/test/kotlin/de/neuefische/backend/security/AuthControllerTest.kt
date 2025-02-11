@@ -60,21 +60,23 @@ class AuthControllerTest {
                             },
                     ),
             ).andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().string("existing-user"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.user").value(user.id.value.toString()))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("existing-user"))
         verify(exactly = 0) { userRepo.save(any()) }
     }
 
     @Test
-    fun `should return empty string when not authenticated`() {
+    fun `should return empty response when not authenticated`() {
         mockMvc
             .perform(MockMvcRequestBuilders.get("/api/auth/me"))
             .andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().string(""))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.user").value(""))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(""))
     }
 
     @Test
     @WithMockUser
-    fun `should return empty string when login not found`() {
+    fun `should return empty response when login not found`() {
         mockMvc
             .perform(
                 MockMvcRequestBuilders
@@ -90,7 +92,8 @@ class AuthControllerTest {
                             },
                     ),
             ).andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().string(""))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.user").value(""))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(""))
     }
 
     @Test
@@ -114,7 +117,8 @@ class AuthControllerTest {
                             },
                     ),
             ).andExpect(MockMvcResultMatchers.status().isOk())
-            .andExpect(MockMvcResultMatchers.content().string("new-user"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.user").isNotEmpty())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.name").value("new-user"))
         verify { userRepo.save(any()) }
     }
 }
