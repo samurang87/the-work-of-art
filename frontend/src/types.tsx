@@ -69,3 +69,11 @@ export type MaterialCreateRequest = {
   type: string | null;
   medium: string | null;
 };
+
+export type SignatureResponse = {
+  signature: string;
+  timestamp: string;
+  apiKey: string;
+  cloudName: string;
+  uploadPreset: string;
+};
