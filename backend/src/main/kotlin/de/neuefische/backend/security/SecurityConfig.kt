@@ -18,7 +18,7 @@ class SecurityConfig {
         http
             .csrf { it.disable() }
             .authorizeHttpRequests {
-                it.requestMatchers("/api/woa", "/api/woa/**", "/api/user/**").authenticated()
+                it.requestMatchers("/api/woa", "/api/woa/**", "/api/user/**", "/api/cloudinary/**").authenticated()
                 it.requestMatchers("/api/status").permitAll()
                 it.anyRequest().permitAll()
             }.sessionManagement {
