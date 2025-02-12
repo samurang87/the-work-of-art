@@ -1,29 +1,53 @@
 package de.neuefische.backend.woa
 
-import com.ninjasquad.springmockk.MockkBean
 import de.neuefische.backend.common.Medium
-import io.mockk.every
+import de.neuefische.backend.user.User
 import org.bson.BsonObjectId
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.data.repository.findByIdOrNull
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.time.Clock
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @WithMockUser
 class WorkOfArtControllerTest {
+    @TestConfiguration
+    class TestConfig {
+        @Bean
+        fun clock(): Clock =
+            Clock.fixed(
+                LocalDateTime
+                    .parse("2025-02-10T11:56:32.966")
+                    .toInstant(ZoneOffset.UTC),
+                ZoneOffset.UTC,
+            )
+    }
+
     @Autowired
     private lateinit var mockMvc: MockMvc
 
-    @MockkBean
+    @Autowired
     private lateinit var workOfArtRepo: WorkOfArtRepo
+
+    private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
+
+    @Autowired
+    private lateinit var clock: Clock
 
     // Reusable test data
     private val yellowCadmium24 =
@@ -35,6 +59,7 @@ class WorkOfArtControllerTest {
             type = "Half Pan",
             medium = Medium.WATERCOLORS,
         )
+
     private val scarletRed12 =
         Material(
             name = "Scarlet Red",
@@ -53,56 +78,68 @@ class WorkOfArtControllerTest {
             type = "Paintbrush",
         )
 
-    private val yellowSunset =
-        WorkOfArt(
-            id = BsonObjectId(),
-            user = BsonObjectId(),
-            challengeId = BsonObjectId(),
-            userName = "max_mustermann",
-            title = "Yellow Sunset",
-            description = "a yellow sunset",
-            imageUrl = "https://example.com/yellow-sunset.jpg",
-            medium = Medium.WATERCOLORS,
-            materials =
-                listOf(
-                    yellowCadmium24,
-                    paintbrush,
-                ),
-        )
+    private lateinit var yellowSunset: WorkOfArt
+    private lateinit var blueDawn: WorkOfArt
+    private lateinit var redMidday: WorkOfArt
 
-    private val blueDawn =
-        WorkOfArt(
-            id = BsonObjectId(),
-            user = BsonObjectId(),
-            userName = "mario_rossi",
-            title = "Blue Dawn",
-            imageUrl = "https://example.com/blue-dawn.jpg",
-            medium = Medium.GOUACHE,
-        )
+    @BeforeEach
+    fun setUp() {
+        workOfArtRepo.deleteAll()
 
-    private val redMidday =
-        WorkOfArt(
-            id = BsonObjectId(),
-            user = BsonObjectId(),
-            challengeId = BsonObjectId(),
-            userName = "jane_snow",
-            title = "Red Midday",
-            description = "a red midday",
-            imageUrl = "https://example.com/red-midday.jpg",
-            medium = Medium.WATERCOLORS,
-            materials =
-                listOf(
-                    scarletRed12,
-                    paintbrush,
-                ),
-        )
+        yellowSunset =
+            WorkOfArt(
+                id = BsonObjectId(),
+                user = BsonObjectId(),
+                challengeId = BsonObjectId(),
+                userName = "max_mustermann",
+                title = "Yellow Sunset",
+                description = "a yellow sunset",
+                imageUrl = "https://example.com/yellow-sunset.jpg",
+                medium = Medium.WATERCOLORS,
+                materials =
+                    listOf(
+                        yellowCadmium24,
+                        paintbrush,
+                    ),
+                createdAt = LocalDateTime.now(clock).plusHours(0),
+            )
+
+        blueDawn =
+            WorkOfArt(
+                id = BsonObjectId(),
+                user = BsonObjectId(),
+                userName = "mario_rossi",
+                title = "Blue Dawn",
+                imageUrl = "https://example.com/blue-dawn.jpg",
+                medium = Medium.GOUACHE,
+                createdAt = LocalDateTime.now(clock).plusHours(1),
+            )
+
+        redMidday =
+            WorkOfArt(
+                id = BsonObjectId(),
+                user = BsonObjectId(),
+                challengeId = BsonObjectId(),
+                userName = "jane_snow",
+                title = "Red Midday",
+                description = "a red midday",
+                imageUrl = "https://example.com/red-midday.jpg",
+                medium = Medium.WATERCOLORS,
+                materials =
+                    listOf(
+                        scarletRed12,
+                        paintbrush,
+                    ),
+                createdAt = LocalDateTime.now(clock).plusHours(2),
+            )
+        workOfArtRepo.save(yellowSunset)
+        workOfArtRepo.save(blueDawn)
+        workOfArtRepo.save(redMidday)
+    }
 
     // GET /api/woa/{id}
     @Test
-    fun getWorkOfArtById() {
-        // Given
-        every { workOfArtRepo.findByIdOrNull(yellowSunset.id.value.toString()) } returns yellowSunset
-
+    fun `should return work of art by id`() {
         // When
         val result = mockMvc.perform(get("/api/woa/${yellowSunset.id.value}"))
 
@@ -130,15 +167,19 @@ class WorkOfArtControllerTest {
             .andExpect(jsonPath("$.materials[1].line").value("Maestro"))
             .andExpect(jsonPath("$.materials[1].type").value("Paintbrush"))
             .andExpect(jsonPath("$.materials[1].medium").doesNotExist())
-            .andExpect(jsonPath("$.createdAt").value(yellowSunset.createdAt.toString()))
+            .andExpect(
+                jsonPath("$.createdAt").value(
+                    yellowSunset.createdAt.format(
+                        formatter,
+                    ),
+                ),
+            )
     }
 
     @Test
-    fun getWorkOfArtByIdReturnsNotFound() {
+    fun `should return not found for non-existent work of art id`() {
         // Given
         val workOfArtId = BsonObjectId()
-
-        every { workOfArtRepo.findByIdOrNull(workOfArtId.value.toString()) } returns null
 
         // When
         val result = mockMvc.perform(get("/api/woa/${workOfArtId.value}"))
@@ -148,10 +189,7 @@ class WorkOfArtControllerTest {
     }
 
     @Test
-    fun getWorkOfArtByIdWithOnlyRequiredFields() {
-        // Given
-        every { workOfArtRepo.findByIdOrNull(blueDawn.id.value.toString()) } returns blueDawn
-
+    fun `should return work of art by id with only required fields`() {
         // When
         val result = mockMvc.perform(get("/api/woa/${blueDawn.id.value}"))
 
@@ -167,19 +205,12 @@ class WorkOfArtControllerTest {
             .andExpect(jsonPath("$.imageUrl").value("https://example.com/blue-dawn.jpg"))
             .andExpect(jsonPath("$.medium").value("gouache"))
             .andExpect(jsonPath("$.materials").isEmpty())
-            .andExpect(jsonPath("$.createdAt").value(blueDawn.createdAt.toString()))
+            .andExpect(jsonPath("$.createdAt").value(blueDawn.createdAt.format(formatter)))
     }
 
+    // GET /api/woa/
     @Test
-    fun getAllWorksOfArtNoFilters() {
-        // Given
-        every { workOfArtRepo.findAll() } returns
-            listOf(
-                redMidday,
-                blueDawn,
-                yellowSunset,
-            )
-
+    fun `should return all works of art when no filters are applied`() {
         // When
         val result = mockMvc.perform(get("/api/woa"))
 
@@ -192,32 +223,41 @@ class WorkOfArtControllerTest {
             .andExpect(jsonPath("$[0].title").value("Red Midday"))
             .andExpect(jsonPath("$[0].imageUrl").value("https://example.com/red-midday.jpg"))
             .andExpect(jsonPath("$[0].medium").value("watercolors"))
-            .andExpect(jsonPath("$[0].createdAt").value(redMidday.createdAt.toString()))
-            .andExpect(jsonPath("$[1].id").value(blueDawn.id.value.toString()))
+            .andExpect(
+                jsonPath("$[0].createdAt").value(
+                    redMidday.createdAt.format(
+                        formatter,
+                    ),
+                ),
+            ).andExpect(jsonPath("$[1].id").value(blueDawn.id.value.toString()))
             .andExpect(jsonPath("$[1].user").value(blueDawn.user.value.toString()))
             .andExpect(jsonPath("$[1].userName").value("mario_rossi"))
             .andExpect(jsonPath("$[1].title").value("Blue Dawn"))
             .andExpect(jsonPath("$[1].imageUrl").value("https://example.com/blue-dawn.jpg"))
             .andExpect(jsonPath("$[1].medium").value("gouache"))
-            .andExpect(jsonPath("$[1].createdAt").value(blueDawn.createdAt.toString()))
-            .andExpect(jsonPath("$[2].id").value(yellowSunset.id.value.toString()))
+            .andExpect(
+                jsonPath("$[1].createdAt").value(
+                    blueDawn.createdAt.format(
+                        formatter,
+                    ),
+                ),
+            ).andExpect(jsonPath("$[2].id").value(yellowSunset.id.value.toString()))
             .andExpect(jsonPath("$[2].user").value(yellowSunset.user.value.toString()))
             .andExpect(jsonPath("$[2].userName").value("max_mustermann"))
             .andExpect(jsonPath("$[2].title").value("Yellow Sunset"))
             .andExpect(jsonPath("$[2].imageUrl").value("https://example.com/yellow-sunset.jpg"))
             .andExpect(jsonPath("$[2].medium").value("watercolors"))
-            .andExpect(jsonPath("$[2].createdAt").value(yellowSunset.createdAt.toString()))
+            .andExpect(
+                jsonPath("$[2].createdAt").value(
+                    yellowSunset.createdAt.format(
+                        formatter,
+                    ),
+                ),
+            )
     }
 
     @Test
-    fun getAllWorksOfArtWithMediumsFilter() {
-        // Given
-        every { workOfArtRepo.findAllByMediumIn(listOf(Medium.WATERCOLORS)) } returns
-            listOf(
-                redMidday,
-                yellowSunset,
-            )
-
+    fun `should return works of art filtered by mediums`() {
         // When
         val result = mockMvc.perform(get("/api/woa?mediums=watercolors"))
 
@@ -230,13 +270,125 @@ class WorkOfArtControllerTest {
             .andExpect(jsonPath("$[0].title").value("Red Midday"))
             .andExpect(jsonPath("$[0].imageUrl").value("https://example.com/red-midday.jpg"))
             .andExpect(jsonPath("$[0].medium").value("watercolors"))
-            .andExpect(jsonPath("$[0].createdAt").value(redMidday.createdAt.toString()))
-            .andExpect(jsonPath("$[1].id").value(yellowSunset.id.value.toString()))
+            .andExpect(
+                jsonPath("$[0].createdAt").value(
+                    redMidday.createdAt.format(
+                        formatter,
+                    ),
+                ),
+            ).andExpect(jsonPath("$[1].id").value(yellowSunset.id.value.toString()))
             .andExpect(jsonPath("$[1].user").value(yellowSunset.user.value.toString()))
             .andExpect(jsonPath("$[1].userName").value("max_mustermann"))
             .andExpect(jsonPath("$[1].title").value("Yellow Sunset"))
             .andExpect(jsonPath("$[1].imageUrl").value("https://example.com/yellow-sunset.jpg"))
             .andExpect(jsonPath("$[1].medium").value("watercolors"))
-            .andExpect(jsonPath("$[1].createdAt").value(yellowSunset.createdAt.toString()))
+            .andExpect(
+                jsonPath("$[1].createdAt").value(
+                    yellowSunset.createdAt.format(
+                        formatter,
+                    ),
+                ),
+            )
+    }
+
+    // POST /api/woa/
+    @Test
+    fun `should create new work of art with all fields`() {
+        // Given
+        val artist =
+            User(
+                id = BsonObjectId(),
+                name = "jane_snow",
+            )
+
+        val challengeId = BsonObjectId()
+
+        // When
+        val result =
+            mockMvc.perform(
+                post("/api/woa")
+                    .contentType("application/json")
+                    .content(
+                        """
+                        {
+                            "user": "${artist.id.value}",
+                            "userName": "${artist.name}",
+                            "challengeId": "${challengeId.value}",
+                            "title": "Green Evening",
+                            "description": "a green evening",
+                            "imageUrl": "https://example.com/green-evening.jpg",
+                            "medium": "watercolors",
+                            "materials": [
+                                {
+                                    "name": "Green Chromium 24",
+                                    "identifier": "24",
+                                    "brand": "Schmincke",
+                                    "line": "Horadam",
+                                    "type": "Half Pan",
+                                    "medium": "watercolors"
+                                },
+                                {
+                                    "name": "Round Brush",
+                                    "brand": "Da Vinci",
+                                    "line": "Maestro",
+                                    "type": "Paintbrush"
+                                }
+                            ]
+                        }
+                        """.trimIndent(),
+                    ),
+            )
+
+        // Then
+        val expectedId =
+            workOfArtRepo
+                .findAll()
+                .last()
+                .id.value
+                .toString()
+
+        result
+            .andExpect(status().isCreated)
+            .andExpect(header().string("Location", "/api/woa/$expectedId"))
+    }
+
+    @Test
+    fun `should create new work of art with only required fields`() {
+        // Given
+        val artist =
+            User(
+                id = BsonObjectId(),
+                name = "jane_snow",
+            )
+
+        // When
+        val result =
+            mockMvc.perform(
+                post("/api/woa")
+                    .contentType("application/json")
+                    .content(
+                        """
+                        {
+                            "user": "${artist.id.value}",
+                            "userName": "${artist.name}",
+                            "title": "Green Evening",
+                            "imageUrl": "https://example.com/green-evening.jpg",
+                            "medium": "watercolors"
+                        }
+                        """.trimIndent(),
+                    ),
+            )
+
+        // Then
+        val expectedId =
+            workOfArtRepo
+                .findAll()
+                .last()
+                .id.value
+                .toString()
+
+        result
+            .andExpect(status().isCreated)
+            .andExpect(header().string("Location", "/api/woa/$expectedId"))
     }
 }

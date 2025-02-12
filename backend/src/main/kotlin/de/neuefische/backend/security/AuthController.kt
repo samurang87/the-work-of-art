@@ -12,8 +12,9 @@ class AuthController(
     private val securityService: SecurityService,
 ) {
     @GetMapping("/me")
-    fun getMe(): String {
-        val username = securityService.getCurrentUsername() ?: return ""
-        return userService.findOrCreateUser(username).name
+    fun getMe(): MeResponse {
+        val username = securityService.getCurrentUsername() ?: return MeResponse("", "")
+        val userProfile = userService.findOrCreateUser(username)
+        return MeResponse(userProfile.id.value.toString(), userProfile.name)
     }
 }

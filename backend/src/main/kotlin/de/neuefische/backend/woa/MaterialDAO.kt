@@ -1,6 +1,6 @@
 package de.neuefische.backend.woa
 
-data class MaterialResponse(
+data class MaterialDAO(
     val name: String,
     val identifier: String? = null,
     val brand: String? = null,

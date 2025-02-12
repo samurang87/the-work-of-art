@@ -1,7 +1,6 @@
 package de.neuefische.backend.woa
 
-data class WorkOfArtResponse(
-    val id: String,
+data class WorkOfArtCreateOrUpdateRequest(
     val user: String,
     val userName: String,
     val challengeId: String? = null,
@@ -9,6 +8,5 @@ data class WorkOfArtResponse(
     val description: String? = null,
     val imageUrl: String,
     val medium: String,
-    val materials: List<MaterialDAO>? = emptyList(),
-    val createdAt: String,
+    val materials: List<MaterialDAO> = emptyList(),
 )

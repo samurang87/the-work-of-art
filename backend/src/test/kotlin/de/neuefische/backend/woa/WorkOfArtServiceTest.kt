@@ -4,6 +4,7 @@ import de.neuefische.backend.common.Medium
 import io.mockk.every
 import io.mockk.mockk
 import org.bson.BsonObjectId
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.data.repository.findByIdOrNull
@@ -77,7 +78,7 @@ class WorkOfArtServiceTest {
         )
 
     @Test
-    fun getWorkOfArtById() {
+    fun `should return work of art by id`() {
         // Given
         val expectedResponse =
             WorkOfArtResponse(
@@ -91,7 +92,7 @@ class WorkOfArtServiceTest {
                 medium = "watercolors",
                 materials =
                     listOf(
-                        MaterialResponse(
+                        MaterialDAO(
                             name = "Yellow Cadmium 24",
                             identifier = "24",
                             brand = "Schmincke",
@@ -99,7 +100,7 @@ class WorkOfArtServiceTest {
                             type = "Half Pan",
                             medium = "watercolors",
                         ),
-                        MaterialResponse(
+                        MaterialDAO(
                             name = "Round Brush",
                             brand = "Da Vinci",
                             line = "Maestro",
@@ -119,7 +120,7 @@ class WorkOfArtServiceTest {
     }
 
     @Test
-    fun getWorkOfArtByIdWithOnlyRequiredFields() {
+    fun `should return work of art by id with only required fields`() {
         // Given
         val expectedResponse =
             WorkOfArtResponse(
@@ -142,7 +143,7 @@ class WorkOfArtServiceTest {
     }
 
     @Test
-    fun getAllWorksOfArtNoMediumsSpecified() {
+    fun `should return all works of art when no mediums specified`() {
         // Given
         val expectedResponse =
             listOf(
@@ -175,7 +176,12 @@ class WorkOfArtServiceTest {
                 ),
             )
 
-        every { workOfArtRepo.findAll() } returns listOf(redMidday, yellowSunset, blueDawn)
+        every { workOfArtRepo.findAll() } returns
+            listOf(
+                redMidday,
+                yellowSunset,
+                blueDawn,
+            )
 
         // When
         val result = workOfArtService.getAllWorksOfArt()
@@ -185,7 +191,7 @@ class WorkOfArtServiceTest {
     }
 
     @Test
-    fun getAllWorksOfArtWithMediumsSpecified() {
+    fun `should return all works of art with specified mediums`() {
         // Given
         val expectedResponse =
             listOf(
@@ -209,12 +215,156 @@ class WorkOfArtServiceTest {
                 ),
             )
 
-        every { workOfArtRepo.findAllByMediumIn(listOf(Medium.WATERCOLORS)) } returns listOf(redMidday, yellowSunset)
+        every { workOfArtRepo.findAllByMediumIn(listOf(Medium.WATERCOLORS)) } returns
+            listOf(
+                redMidday,
+                yellowSunset,
+            )
 
         // When
         val result = workOfArtService.getAllWorksOfArt(listOf(Medium.WATERCOLORS))
 
         // Then
         assertEquals(expectedResponse, result)
+    }
+
+    @Test
+    fun `should create new work of art with all fields`() {
+        // Given
+        val userIdAsString = BsonObjectId().value.toString()
+        val challengeIdAsString = BsonObjectId().value.toString()
+
+        val request =
+            WorkOfArtCreateOrUpdateRequest(
+                user = userIdAsString,
+                userName = "someUserName",
+                challengeId = challengeIdAsString,
+                title = "Some Title",
+                description = "Some Description",
+                imageUrl = "https://example.com/some-image.jpg",
+                medium = "watercolors",
+                materials =
+                    listOf(
+                        MaterialDAO(
+                            name = "Green Chromium 24",
+                            identifier = "24",
+                            brand = "Schmincke",
+                            line = "Horadam",
+                            type = "Half Pan",
+                            medium = "watercolors",
+                        ),
+                        MaterialDAO(
+                            name = "Round Brush",
+                            brand = "Da Vinci",
+                            line = "Maestro",
+                            type = "Paintbrush",
+                        ),
+                    ),
+            )
+
+        val expectedWorkOfArt =
+            WorkOfArt(
+                user = BsonObjectId(ObjectId(userIdAsString)),
+                userName = request.userName,
+                challengeId = BsonObjectId(ObjectId(challengeIdAsString)),
+                title = request.title,
+                description = request.description,
+                imageUrl = request.imageUrl,
+                medium = Medium.WATERCOLORS,
+                materials =
+                    listOf(
+                        Material(
+                            name = "Green Chromium 24",
+                            identifier = "24",
+                            brand = "Schmincke",
+                            line = "Horadam",
+                            type = "Half Pan",
+                            medium = Medium.WATERCOLORS,
+                        ),
+                        Material(
+                            name = "Round Brush",
+                            brand = "Da Vinci",
+                            line = "Maestro",
+                            type = "Paintbrush",
+                        ),
+                    ),
+            )
+
+        every { workOfArtRepo.save(any()) } returns expectedWorkOfArt
+
+        // When
+        val result = workOfArtService.createWorkOfArt(request)
+
+        // Then
+        assertEquals(true, result.id.isNotBlank())
+        assertEquals(expectedWorkOfArt.user.value.toString(), result.user)
+        assertEquals(expectedWorkOfArt.userName, result.userName)
+        assertEquals(
+            expectedWorkOfArt.challengeId?.value.toString(),
+            result.challengeId,
+        )
+        assertEquals(expectedWorkOfArt.title, result.title)
+        assertEquals(expectedWorkOfArt.description, result.description)
+        assertEquals(expectedWorkOfArt.imageUrl, result.imageUrl)
+        assertEquals(expectedWorkOfArt.medium.lowercase, result.medium)
+        assertEquals(
+            listOf(
+                MaterialDAO(
+                    name = "Green Chromium 24",
+                    identifier = "24",
+                    brand = "Schmincke",
+                    line = "Horadam",
+                    type = "Half Pan",
+                    medium = "watercolors",
+                ),
+                MaterialDAO(
+                    name = "Round Brush",
+                    brand = "Da Vinci",
+                    line = "Maestro",
+                    type = "Paintbrush",
+                ),
+            ),
+            result.materials,
+        )
+    }
+
+    @Test
+    fun `should create new work of art with only required fields`() {
+        // Given
+        val userIdAsString = BsonObjectId().value.toString()
+        val request =
+            WorkOfArtCreateOrUpdateRequest(
+                user = userIdAsString,
+                userName = "someUserName",
+                title = "Some Title",
+                imageUrl = "https://example.com/some-image.jpg",
+                medium = "watercolors",
+            )
+
+        val expectedWorkOfArt =
+            WorkOfArt(
+                user = BsonObjectId(ObjectId(userIdAsString)),
+                userName = request.userName,
+                title = request.title,
+                imageUrl = request.imageUrl,
+                medium = Medium.WATERCOLORS,
+                materials = emptyList(),
+            )
+
+        every { workOfArtRepo.save(any()) } returns expectedWorkOfArt
+
+        // When
+        val result = workOfArtService.createWorkOfArt(request)
+
+        // Then
+        assertEquals(true, result.id.isNotBlank())
+        assertEquals(expectedWorkOfArt.user.value.toString(), result.user)
+        assertEquals(expectedWorkOfArt.userName, result.userName)
+        assertEquals(null, result.challengeId)
+        assertEquals(null, result.description)
+        assertEquals(expectedWorkOfArt.title, result.title)
+        assertEquals(expectedWorkOfArt.imageUrl, result.imageUrl)
+        assertEquals(expectedWorkOfArt.medium.lowercase, result.medium)
+        assertEquals(emptyList<MaterialDAO>(), result.materials)
     }
 }

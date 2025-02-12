@@ -49,3 +49,23 @@ export type WorkOfArt = {
   materials: Material[] | null;
   createdAt: string;
 };
+
+export type WorkOfArtCreateRequest = {
+  user: string;
+  userName: string;
+  challengeId: string | null;
+  title: string;
+  description: string | null;
+  imageUrl: string;
+  medium: string;
+  materials: MaterialCreateRequest[];
+};
+
+export type MaterialCreateRequest = {
+  name: string;
+  identifier: string | null;
+  brand: string | null;
+  line: string | null;
+  type: string | null;
+  medium: string | null;
+};
