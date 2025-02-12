@@ -121,6 +121,16 @@
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.cloudinary</groupId>
+            <artifactId>kotlin-url-gen</artifactId>
+            <version>1.10.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudinary</groupId>
+            <artifactId>kotlin-uploader</artifactId>
+            <version>1.10.0</version>
+        </dependency>
     </dependencies>
 
     <build>
