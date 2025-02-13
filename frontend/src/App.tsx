@@ -56,7 +56,10 @@ function App() {
               path="/user/:username?"
               element={<ProfilePage loggedInUsername={loggedInUsername} />}
             />
-            <Route path="/woa/:workOfArtId?" element={<WorkOfArtPage />} />
+            <Route
+              path="/woa/:workOfArtId?"
+              element={<WorkOfArtPage loggedInUsername={loggedInUsername} />}
+            />
             <Route
               path="/woa/new"
               element={
