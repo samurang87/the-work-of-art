@@ -71,7 +71,9 @@ class WorkOfArtService(
                 title = request.title,
                 description = request.description,
                 imageUrl = request.imageUrl,
-                medium = request.medium.toMedium() ?: throw IllegalArgumentException("Medium is unavailable"),
+                medium =
+                    request.medium.toMedium()
+                        ?: throw IllegalArgumentException("Medium is unavailable"),
                 materials =
                     request.materials.map { material ->
                         Material(
@@ -85,6 +87,40 @@ class WorkOfArtService(
                     },
             )
         val savedWorkOfArt = workOfArtRepo.save(workOfArt)
+        return workOfArtResponse(savedWorkOfArt)
+    }
+
+    fun updateWorkOfArt(
+        id: String,
+        request: WorkOfArtCreateOrUpdateRequest,
+    ): WorkOfArtResponse {
+        val existingWorkOfArt =
+            workOfArtRepo.findByIdOrNull(id)
+                ?: throw IllegalArgumentException("Work of Art not found")
+
+        val updatedWorkOfArt =
+            existingWorkOfArt.copy(
+                challengeId = request.challengeId?.let { BsonObjectId(ObjectId(it)) },
+                title = request.title,
+                description = request.description,
+                imageUrl = request.imageUrl,
+                medium =
+                    request.medium.toMedium()
+                        ?: throw IllegalArgumentException("Medium is unavailable"),
+                materials =
+                    request.materials.map { material ->
+                        Material(
+                            name = material.name,
+                            identifier = material.identifier,
+                            brand = material.brand,
+                            line = material.line,
+                            type = material.type,
+                            medium = material.medium?.let { Medium.valueOf(it.uppercase()) },
+                        )
+                    },
+            )
+
+        val savedWorkOfArt = workOfArtRepo.save(updatedWorkOfArt)
         return workOfArtResponse(savedWorkOfArt)
     }
 }
