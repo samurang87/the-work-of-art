@@ -84,9 +84,15 @@ const CloudinaryUploadWidget = ({
   };
 
   return (
-    <button onClick={handleUploadClick} type="button" className="upload-button">
-      Upload Image
-    </button>
+    <div style={{ display: "flex", justifyContent: "center" }}>
+      <button
+        onClick={handleUploadClick}
+        type="button"
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50"
+      >
+        Upload Image
+      </button>
+    </div>
   );
 };
 
