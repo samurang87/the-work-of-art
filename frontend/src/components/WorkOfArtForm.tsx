@@ -225,18 +225,10 @@ export default function WorkOfArtForm({
               onUploadSuccess={handleImageUploadSuccess}
             />
             {formData.imageUrl && (
-              <input
-                type="text"
-                placeholder="Image URL"
-                value={formData.imageUrl}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    imageUrl: e.target.value,
-                  })
-                }
-                className="w-full mt-4"
-                required
+              <img
+                src={formData.imageUrl}
+                alt="Uploaded Image"
+                className="w-full mt-4 rounded-lg"
               />
             )}
           </div>
