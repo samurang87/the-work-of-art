@@ -4,6 +4,7 @@ import {
   WorkOfArtCreateRequest,
   MaterialCreateRequest,
 } from "../types.tsx";
+import CloudinaryUploadWidget from "./CloudinaryUploadWidget.tsx";
 
 type WorkOfArtFormProps = {
   user: string | undefined;
@@ -176,6 +177,13 @@ export default function WorkOfArtForm({
     }));
   };
 
+  const handleImageUploadSuccess = (url: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      imageUrl: url,
+    }));
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -211,6 +219,19 @@ export default function WorkOfArtForm({
             handleSubmit(e).catch(console.error);
           }}
         >
+          {/* Image Upload Section */}
+          <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
+            <CloudinaryUploadWidget
+              onUploadSuccess={handleImageUploadSuccess}
+            />
+            {formData.imageUrl && (
+              <img
+                src={formData.imageUrl}
+                alt="Uploaded Image"
+                className="w-full mt-4 rounded-lg"
+              />
+            )}
+          </div>
           {/* Title Section */}
           <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
             <input
@@ -266,23 +287,6 @@ export default function WorkOfArtForm({
             />
           </div>
 
-          {/* Image Upload Section */}
-          <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
-            <input
-              type="text"
-              placeholder="Image URL"
-              value={formData.imageUrl || ""}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  imageUrl: e.target.value,
-                })
-              }
-              className="w-full"
-              required
-            />
-          </div>
-
           {/* Challenge ID Section */}
           <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
             <input
@@ -325,13 +329,15 @@ export default function WorkOfArtForm({
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50"
-          >
-            {isSubmitting ? "Creating..." : "Create Work of Art"}
-          </button>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50"
+            >
+              {isSubmitting ? "Creating..." : "Create Work of Art"}
+            </button>
+          </div>
         </form>
       </div>
     </div>
