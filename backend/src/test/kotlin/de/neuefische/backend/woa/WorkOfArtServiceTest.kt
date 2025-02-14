@@ -7,6 +7,7 @@ import org.bson.BsonObjectId
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.data.repository.findByIdOrNull
 
 class WorkOfArtServiceTest {
@@ -366,5 +367,106 @@ class WorkOfArtServiceTest {
         assertEquals(expectedWorkOfArt.imageUrl, result.imageUrl)
         assertEquals(expectedWorkOfArt.medium.lowercase, result.medium)
         assertEquals(emptyList<MaterialDAO>(), result.materials)
+    }
+
+    @Test
+    fun `should edit existing work of art with all fields`() {
+        // Given
+        val request =
+            WorkOfArtCreateOrUpdateRequest(
+                user = yellowSunset.user.value.toString(),
+                userName = yellowSunset.userName,
+                challengeId = yellowSunset.challengeId?.value.toString(),
+                title = "Updated Title",
+                description = "Updated Description",
+                imageUrl = "https://example.com/updated-image.jpg",
+                medium = "pencils",
+                materials =
+                    listOf(
+                        MaterialDAO(
+                            name = "Updated Material",
+                            identifier = "99",
+                            brand = "Updated Brand",
+                            line = "Updated Line",
+                            type = "Updated Type",
+                            medium = "pencils",
+                        ),
+                    ),
+            )
+
+        val updatedWorkOfArt =
+            yellowSunset.copy(
+                title = request.title,
+                description = request.description,
+                imageUrl = request.imageUrl,
+                medium = Medium.PENCILS,
+                materials =
+                    listOf(
+                        Material(
+                            name = "Updated Material",
+                            identifier = "99",
+                            brand = "Updated Brand",
+                            line = "Updated Line",
+                            type = "Updated Type",
+                            medium = Medium.PENCILS,
+                        ),
+                    ),
+            )
+
+        every { workOfArtRepo.findByIdOrNull(yellowSunset.id.value.toString()) } returns yellowSunset
+        every { workOfArtRepo.save(any()) } returns updatedWorkOfArt
+
+        // When
+        val result =
+            workOfArtService.updateWorkOfArt(yellowSunset.id.value.toString(), request)
+
+        // Then
+        val expectedResponse =
+            WorkOfArtResponse(
+                id = yellowSunset.id.value.toString(),
+                user = yellowSunset.user.value.toString(),
+                challengeId = yellowSunset.challengeId?.value.toString(),
+                userName = yellowSunset.userName,
+                title = "Updated Title",
+                description = "Updated Description",
+                imageUrl = "https://example.com/updated-image.jpg",
+                medium = "pencils",
+                materials =
+                    listOf(
+                        MaterialDAO(
+                            name = "Updated Material",
+                            identifier = "99",
+                            brand = "Updated Brand",
+                            line = "Updated Line",
+                            type = "Updated Type",
+                            medium = "pencils",
+                        ),
+                    ),
+                createdAt = yellowSunset.createdAt.toString(),
+            )
+        assertEquals(expectedResponse, result)
+    }
+
+    @Test
+    fun `should throw error when editing nonexistent work of art`() {
+        // Given
+        val nonexistentId = BsonObjectId().value.toString()
+        val request =
+            WorkOfArtCreateOrUpdateRequest(
+                user = "someUserId",
+                userName = "someUserName",
+                title = "Some Title",
+                imageUrl = "https://example.com/some-image.jpg",
+                medium = "watercolors",
+            )
+
+        every { workOfArtRepo.findByIdOrNull(nonexistentId) } returns null
+
+        // When / Then
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                workOfArtService.updateWorkOfArt(nonexistentId, request)
+            }
+        assertEquals("Work of Art not found", exception.message)
     }
 }

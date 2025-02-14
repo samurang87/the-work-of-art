@@ -14,6 +14,7 @@ import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.header
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -390,5 +391,88 @@ class WorkOfArtControllerTest {
         result
             .andExpect(status().isCreated)
             .andExpect(header().string("Location", "/api/woa/$expectedId"))
+    }
+
+    // PUT /api/woa/{id}
+    @Test
+    fun `should edit existing work of art with all fields`() {
+        // Given
+        val requestContent =
+            """
+            {
+                "user": "${yellowSunset.user.value}",
+                "userName": "${yellowSunset.userName}",
+                "challengeId": "${yellowSunset.challengeId?.value}",
+                "title": "Updated Title",
+                "description": "Updated Description",
+                "imageUrl": "https://example.com/updated-image.jpg",
+                "medium": "pencils",
+                "materials": [
+                    {
+                        "name": "Updated Material",
+                        "identifier": "99",
+                        "brand": "Updated Brand",
+                        "line": "Updated Line",
+                        "type": "Updated Type",
+                        "medium": "pencils"
+                    }
+                ]
+            }
+            """.trimIndent()
+
+        // When
+        val result =
+            mockMvc.perform(
+                put("/api/woa/${yellowSunset.id.value}")
+                    .contentType("application/json")
+                    .content(requestContent),
+            )
+
+        // Then
+        result
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(yellowSunset.id.value.toString()))
+            .andExpect(jsonPath("$.user").value(yellowSunset.user.value.toString()))
+            .andExpect(jsonPath("$.userName").value(yellowSunset.userName))
+            .andExpect(jsonPath("$.challengeId").value(yellowSunset.challengeId?.value.toString()))
+            .andExpect(jsonPath("$.title").value("Updated Title"))
+            .andExpect(jsonPath("$.description").value("Updated Description"))
+            .andExpect(jsonPath("$.imageUrl").value("https://example.com/updated-image.jpg"))
+            .andExpect(jsonPath("$.medium").value("pencils"))
+            .andExpect(jsonPath("$.materials[0].name").value("Updated Material"))
+            .andExpect(jsonPath("$.materials[0].identifier").value("99"))
+            .andExpect(jsonPath("$.materials[0].brand").value("Updated Brand"))
+            .andExpect(jsonPath("$.materials[0].line").value("Updated Line"))
+            .andExpect(jsonPath("$.materials[0].type").value("Updated Type"))
+            .andExpect(jsonPath("$.materials[0].medium").value("pencils"))
+    }
+
+    @Test
+    fun `should throw error when editing nonexistent work of art`() {
+        // Given
+        val nonexistentId = BsonObjectId().value.toString()
+        val requestContent =
+            """
+            {
+                "user": "someUserId",
+                "userName": "someUserName",
+                "title": "Some Title",
+                "imageUrl": "https://example.com/some-image.jpg",
+                "medium": "watercolors"
+            }
+            """.trimIndent()
+
+        // When
+        val result =
+            mockMvc.perform(
+                put("/api/woa/$nonexistentId")
+                    .contentType("application/json")
+                    .content(requestContent),
+            )
+
+        // Then
+        result
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.message").value("Work of Art not found"))
     }
 }

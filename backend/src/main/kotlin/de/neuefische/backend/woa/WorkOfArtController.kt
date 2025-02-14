@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -49,5 +50,14 @@ class WorkOfArtController(
         val workOfArt = workOfArtService.createWorkOfArt(request)
         val location = URI.create("/api/woa/${workOfArt.id}")
         return ResponseEntity.created(location).build()
+    }
+
+    @PutMapping("/{id}")
+    fun updateWorkOfArt(
+        @PathVariable id: String,
+        @RequestBody request: WorkOfArtCreateOrUpdateRequest,
+    ): ResponseEntity<WorkOfArtResponse> {
+        val workOfArt = workOfArtService.updateWorkOfArt(id, request)
+        return ResponseEntity.ok(workOfArt)
     }
 }

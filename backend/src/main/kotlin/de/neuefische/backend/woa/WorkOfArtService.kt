@@ -62,29 +62,76 @@ class WorkOfArtService(
             }
     }
 
+    private fun constructWorkOfArt(
+        user: String,
+        userName: String,
+        challengeId: String?,
+        title: String,
+        description: String,
+        imageUrl: String,
+        medium: String,
+        materials: List<MaterialDAO>,
+    ): WorkOfArt =
+        WorkOfArt(
+            user = BsonObjectId(ObjectId(user)),
+            userName = userName,
+            challengeId = challengeId?.let { BsonObjectId(ObjectId(it)) },
+            title = title,
+            description = description,
+            imageUrl = imageUrl,
+            medium =
+                medium.toMedium()
+                    ?: throw IllegalArgumentException("Medium is unavailable"),
+            materials =
+                materials.map { material ->
+                    Material(
+                        name = material.name,
+                        identifier = material.identifier,
+                        brand = material.brand,
+                        line = material.line,
+                        type = material.type,
+                        medium = material.medium?.let { Medium.valueOf(it.uppercase()) },
+                    )
+                },
+        )
+
     fun createWorkOfArt(request: WorkOfArtCreateOrUpdateRequest): WorkOfArtResponse {
         val workOfArt =
-            WorkOfArt(
-                user = BsonObjectId(ObjectId(request.user)),
+            constructWorkOfArt(
+                user = request.user,
                 userName = request.userName,
-                challengeId = request.challengeId?.let { BsonObjectId(ObjectId(it)) },
+                challengeId = request.challengeId,
                 title = request.title,
-                description = request.description,
+                description = request.description ?: "",
                 imageUrl = request.imageUrl,
-                medium = request.medium.toMedium() ?: throw IllegalArgumentException("Medium is unavailable"),
-                materials =
-                    request.materials.map { material ->
-                        Material(
-                            name = material.name,
-                            identifier = material.identifier,
-                            brand = material.brand,
-                            line = material.line,
-                            type = material.type,
-                            medium = material.medium?.let { Medium.valueOf(it.uppercase()) },
-                        )
-                    },
+                medium = request.medium,
+                materials = request.materials,
             )
         val savedWorkOfArt = workOfArtRepo.save(workOfArt)
+        return workOfArtResponse(savedWorkOfArt)
+    }
+
+    fun updateWorkOfArt(
+        id: String,
+        request: WorkOfArtCreateOrUpdateRequest,
+    ): WorkOfArtResponse {
+        val existingWorkOfArt =
+            workOfArtRepo.findByIdOrNull(id)
+                ?: throw IllegalArgumentException("Work of Art not found")
+
+        val updatedWorkOfArt =
+            constructWorkOfArt(
+                user = request.user,
+                userName = request.userName,
+                challengeId = request.challengeId,
+                title = request.title,
+                description = request.description ?: "",
+                imageUrl = request.imageUrl,
+                medium = request.medium,
+                materials = request.materials,
+            ).copy(id = existingWorkOfArt.id)
+
+        val savedWorkOfArt = workOfArtRepo.save(updatedWorkOfArt)
         return workOfArtResponse(savedWorkOfArt)
     }
 }

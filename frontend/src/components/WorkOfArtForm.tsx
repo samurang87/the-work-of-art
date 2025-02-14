@@ -10,6 +10,9 @@ type WorkOfArtFormProps = {
   user: string | undefined;
   userName: string | undefined;
   onSuccess?: () => void;
+  initialData?: Partial<WorkOfArtCreateRequest>;
+  isEditMode?: boolean;
+  workOfArtId?: string;
 };
 
 const MaterialForm = ({
@@ -116,21 +119,26 @@ export default function WorkOfArtForm({
   user,
   userName,
   onSuccess,
+  initialData,
+  isEditMode = false,
+  workOfArtId,
 }: WorkOfArtFormProps) {
-  const [formData, setFormData] = useState<Partial<WorkOfArtCreateRequest>>({
-    user,
-    userName,
-    materials: [
-      {
-        name: "",
-        identifier: null,
-        brand: null,
-        line: null,
-        type: null,
-        medium: null,
-      },
-    ],
-  });
+  const [formData, setFormData] = useState<Partial<WorkOfArtCreateRequest>>(
+    initialData || {
+      user,
+      userName,
+      materials: [
+        {
+          name: "",
+          identifier: null,
+          brand: null,
+          line: null,
+          type: null,
+          medium: null,
+        },
+      ],
+    },
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -190,13 +198,16 @@ export default function WorkOfArtForm({
     setError(null);
 
     try {
-      const response = await fetch("/api/woa", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        isEditMode ? `/api/woa/${workOfArtId}` : "/api/woa",
+        {
+          method: isEditMode ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
         },
-        body: JSON.stringify(formData),
-      });
+      );
 
       if (!response.ok) {
         setError(`HTTP error! status: ${response.status}`);
@@ -335,7 +346,13 @@ export default function WorkOfArtForm({
               disabled={isSubmitting}
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50"
             >
-              {isSubmitting ? "Creating..." : "Create Work of Art"}
+              {isSubmitting
+                ? isEditMode
+                  ? "Updating..."
+                  : "Creating..."
+                : isEditMode
+                  ? "Update Work of Art"
+                  : "Create Work of Art"}
             </button>
           </div>
         </form>
