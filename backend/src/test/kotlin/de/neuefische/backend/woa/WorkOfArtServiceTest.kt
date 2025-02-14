@@ -3,6 +3,7 @@ package de.neuefische.backend.woa
 import de.neuefische.backend.common.Medium
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import org.bson.BsonObjectId
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -468,5 +469,33 @@ class WorkOfArtServiceTest {
                 workOfArtService.updateWorkOfArt(nonexistentId, request)
             }
         assertEquals("Work of Art not found", exception.message)
+    }
+
+    @Test
+    fun `should delete work of art`() {
+        // Given
+        val id = yellowSunset.id.value.toString()
+        every { workOfArtRepo.existsById(id) } returns true
+        every { workOfArtRepo.deleteById(id) } returns Unit
+
+        // When
+        val res = workOfArtService.deleteWorkOfArt(yellowSunset.id.value.toString())
+
+        // Then
+        assertEquals(res, id)
+        verify { workOfArtRepo.deleteById(id) }
+    }
+
+    @Test
+    fun `should throw error when deleting nonexistent work of art`() {
+        // Given
+        val nonexistentId = BsonObjectId().value.toString()
+        every { workOfArtRepo.existsById(nonexistentId) } returns false
+
+        // When / Then
+        val exception =
+            assertThrows<IllegalArgumentException> {
+                workOfArtService.deleteWorkOfArt(nonexistentId)
+            }
     }
 }

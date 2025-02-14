@@ -134,4 +134,12 @@ class WorkOfArtService(
         val savedWorkOfArt = workOfArtRepo.save(updatedWorkOfArt)
         return workOfArtResponse(savedWorkOfArt)
     }
+
+    fun deleteWorkOfArt(id: String): String {
+        if (!workOfArtRepo.existsById(id)) {
+            throw IllegalArgumentException("Work of Art not found")
+        }
+        workOfArtRepo.deleteById(id)
+        return id
+    }
 }
