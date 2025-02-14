@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.access.AccessDeniedException
 
 class WorkOfArtServiceTest {
     private val workOfArtRepo = mockk<WorkOfArtRepo>()
@@ -419,7 +420,11 @@ class WorkOfArtServiceTest {
 
         // When
         val result =
-            workOfArtService.updateWorkOfArt(yellowSunset.id.value.toString(), request)
+            workOfArtService.updateWorkOfArt(
+                yellowSunset.id.value.toString(),
+                request,
+                yellowSunset.userName,
+            )
 
         // Then
         val expectedResponse =
@@ -466,20 +471,60 @@ class WorkOfArtServiceTest {
         // When / Then
         val exception =
             assertThrows<IllegalArgumentException> {
-                workOfArtService.updateWorkOfArt(nonexistentId, request)
+                workOfArtService.updateWorkOfArt(nonexistentId, request, "someUserName")
             }
         assertEquals("Work of Art not found", exception.message)
+    }
+
+    @Test
+    fun `should throw error when editing another user's work of art`() {
+        // Given
+        val request =
+            WorkOfArtCreateOrUpdateRequest(
+                user = yellowSunset.user.value.toString(),
+                userName = yellowSunset.userName,
+                title = "Updated Title",
+                imageUrl = "https://example.com/updated-image.jpg",
+                medium = "pencils",
+                materials =
+                    listOf(
+                        MaterialDAO(
+                            name = "Updated Material",
+                            identifier = "99",
+                            brand = "Updated Brand",
+                            line = "Updated Line",
+                            type = "Updated Type",
+                            medium = "pencils",
+                        ),
+                    ),
+            )
+
+        every { workOfArtRepo.findByIdOrNull(yellowSunset.id.value.toString()) } returns yellowSunset
+
+        // When / Then
+        assertThrows<AccessDeniedException> {
+            workOfArtService.updateWorkOfArt(
+                yellowSunset.id.value.toString(),
+                request,
+                "someOtherUserName",
+            )
+        }
+        verify(exactly = 0) { workOfArtRepo.save(any()) }
     }
 
     @Test
     fun `should delete work of art`() {
         // Given
         val id = yellowSunset.id.value.toString()
-        every { workOfArtRepo.existsById(id) } returns true
+        every { workOfArtRepo.findByIdOrNull(id) } returns yellowSunset
         every { workOfArtRepo.deleteById(id) } returns Unit
 
         // When
-        val res = workOfArtService.deleteWorkOfArt(yellowSunset.id.value.toString())
+        val res =
+            workOfArtService.deleteWorkOfArt(
+                yellowSunset.id.value.toString(),
+                yellowSunset.userName,
+            )
 
         // Then
         assertEquals(res, id)
@@ -490,12 +535,25 @@ class WorkOfArtServiceTest {
     fun `should throw error when deleting nonexistent work of art`() {
         // Given
         val nonexistentId = BsonObjectId().value.toString()
-        every { workOfArtRepo.existsById(nonexistentId) } returns false
+        every { workOfArtRepo.findByIdOrNull(nonexistentId) } returns null
 
         // When / Then
-        val exception =
-            assertThrows<IllegalArgumentException> {
-                workOfArtService.deleteWorkOfArt(nonexistentId)
-            }
+        assertThrows<IllegalArgumentException> {
+            workOfArtService.deleteWorkOfArt(nonexistentId, "someUserName")
+        }
+    }
+
+    @Test
+    fun `should throw error when deleting different user's work of art`() {
+        // Given
+        val id = yellowSunset.id.value.toString()
+        every { workOfArtRepo.findByIdOrNull(id) } returns yellowSunset
+
+        // When / Then
+        assertThrows<AccessDeniedException> {
+            workOfArtService.deleteWorkOfArt(id, "someOtherUserName")
+        }
+
+        verify(exactly = 0) { workOfArtRepo.deleteById(id) }
     }
 }

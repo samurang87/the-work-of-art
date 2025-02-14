@@ -2,7 +2,11 @@ package de.neuefische.backend.woa
 
 import de.neuefische.backend.common.Medium
 import de.neuefische.backend.common.toMedium
+import de.neuefische.backend.exceptions.NotFoundException
+import de.neuefische.backend.security.SecurityService
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -18,6 +22,7 @@ import java.net.URI
 @RequestMapping("/api/woa")
 class WorkOfArtController(
     private val workOfArtService: WorkOfArtService,
+    private val securityService: SecurityService,
 ) {
     @GetMapping("/{id}")
     fun getWorkOfArt(
@@ -58,15 +63,30 @@ class WorkOfArtController(
         @PathVariable id: String,
         @RequestBody request: WorkOfArtCreateOrUpdateRequest,
     ): ResponseEntity<WorkOfArtResponse> {
-        val workOfArt = workOfArtService.updateWorkOfArt(id, request)
-        return ResponseEntity.ok(workOfArt)
+        val currentUser = securityService.getCurrentUsername() ?: ""
+        try {
+            val updatedWorkOfArt =
+                workOfArtService.updateWorkOfArt(id, request, currentUser)
+            return ResponseEntity.ok(updatedWorkOfArt)
+        } catch (e: NotFoundException) {
+            return ResponseEntity.notFound().build()
+        } catch (e: AccessDeniedException) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+        }
     }
 
     @DeleteMapping("/{id}")
     fun deleteWorkOfArt(
         @PathVariable id: String,
     ): ResponseEntity<String> {
-        val deletedWoAid = workOfArtService.deleteWorkOfArt(id)
-        return ResponseEntity.ok(deletedWoAid)
+        val currentUser = securityService.getCurrentUsername() ?: ""
+        try {
+            val deletedWoAid = workOfArtService.deleteWorkOfArt(id, currentUser)
+            return ResponseEntity.ok(deletedWoAid)
+        } catch (e: NotFoundException) {
+            return ResponseEntity.notFound().build()
+        } catch (e: AccessDeniedException) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+        }
     }
 }
