@@ -541,6 +541,8 @@ class WorkOfArtServiceTest {
         assertThrows<IllegalArgumentException> {
             workOfArtService.deleteWorkOfArt(nonexistentId, "someUserName")
         }
+
+        verify(exactly = 0) { workOfArtRepo.deleteById(nonexistentId) }
     }
 
     @Test
