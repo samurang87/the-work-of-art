@@ -3,6 +3,7 @@ package de.neuefische.backend.woa
 import de.neuefische.backend.common.Medium
 import de.neuefische.backend.common.toMedium
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -59,5 +60,13 @@ class WorkOfArtController(
     ): ResponseEntity<WorkOfArtResponse> {
         val workOfArt = workOfArtService.updateWorkOfArt(id, request)
         return ResponseEntity.ok(workOfArt)
+    }
+
+    @DeleteMapping("/{id}")
+    fun deleteWorkOfArt(
+        @PathVariable id: String,
+    ): ResponseEntity<String> {
+        val deletedWoAid = workOfArtService.deleteWorkOfArt(id)
+        return ResponseEntity.ok(deletedWoAid)
     }
 }

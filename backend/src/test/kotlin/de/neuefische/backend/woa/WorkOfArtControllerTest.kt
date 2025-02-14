@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
@@ -469,6 +470,36 @@ class WorkOfArtControllerTest {
                     .contentType("application/json")
                     .content(requestContent),
             )
+
+        // Then
+        result
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.message").value("Work of Art not found"))
+    }
+
+    @Test
+    fun `should delete work of art`() {
+        // When
+        val result = mockMvc.perform(delete("/api/woa/${yellowSunset.id.value}"))
+
+        // Then
+        result
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$").value(yellowSunset.id.value.toString()))
+
+        // When
+        mockMvc
+            .perform(get("/api/woa/${yellowSunset.id.value}"))
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `should throw error when deleting nonexistent work of art`() {
+        // Given
+        val nonexistentId = BsonObjectId().value.toString()
+
+        // When
+        val result = mockMvc.perform(delete("/api/woa/$nonexistentId"))
 
         // Then
         result
