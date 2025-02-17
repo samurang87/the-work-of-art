@@ -1,5 +1,6 @@
 package de.neuefische.backend.security
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
@@ -11,7 +12,10 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint
 
 @Configuration
 @EnableWebSecurity
-class SecurityConfig {
+class SecurityConfig(
+    @Value("\${client.url}")
+    private val clientUrl: String,
+) {
     @Bean
     @Throws(Exception::class)
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -26,9 +30,9 @@ class SecurityConfig {
             }.exceptionHandling {
                 it.authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
             }.oauth2Login {
-                it.defaultSuccessUrl("http://localhost:5173/feed")
+                it.defaultSuccessUrl("$clientUrl/feed")
             }.logout {
-                it.logoutSuccessUrl("http://localhost:5173")
+                it.logoutSuccessUrl(clientUrl)
             }
         return http.build()
     }
