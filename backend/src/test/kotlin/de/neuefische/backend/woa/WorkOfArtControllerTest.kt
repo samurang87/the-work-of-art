@@ -328,7 +328,7 @@ class WorkOfArtControllerTest {
                                     "brand": "Schmincke",
                                     "line": "Horadam",
                                     "type": "Half Pan",
-                                    "medium": "watercolors"
+                                    "medium": "color pencils"
                                 },
                                 {
                                     "name": "Round Brush",

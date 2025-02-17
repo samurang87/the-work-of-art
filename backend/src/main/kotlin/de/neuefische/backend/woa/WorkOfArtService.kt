@@ -91,7 +91,9 @@ class WorkOfArtService(
                         brand = material.brand,
                         line = material.line,
                         type = material.type,
-                        medium = material.medium?.let { Medium.valueOf(it.uppercase()) },
+                        medium =
+                            medium.toMedium()
+                                ?: throw IllegalArgumentException("Medium is unavailable"),
                     )
                 },
         )
