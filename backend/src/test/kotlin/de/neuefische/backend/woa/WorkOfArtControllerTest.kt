@@ -11,7 +11,9 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
@@ -425,7 +427,12 @@ class WorkOfArtControllerTest {
             mockMvc.perform(
                 put("/api/woa/${yellowSunset.id.value}")
                     .contentType("application/json")
-                    .content(requestContent),
+                    .content(requestContent)
+                    .with(
+                        oauth2Login().attributes { attrs ->
+                            attrs["login"] = yellowSunset.userName
+                        },
+                    ),
             )
 
         // Then
@@ -474,5 +481,93 @@ class WorkOfArtControllerTest {
         result
             .andExpect(status().isBadRequest)
             .andExpect(jsonPath("$.message").value("Work of Art not found"))
+    }
+
+    @Test
+    fun `should throw error when editing another user's work of art`() {
+        // Given
+        val requestContent =
+            """
+            {
+                "user": "${yellowSunset.user.value}",
+                "userName": "${yellowSunset.userName}",
+                "title": "Updated Title",
+                "imageUrl": "https://example.com/updated-image.jpg",
+                "medium": "pencils"
+            }
+            """.trimIndent()
+
+        // When
+        val result =
+            mockMvc.perform(
+                put("/api/woa/${yellowSunset.id.value}")
+                    .contentType("application/json")
+                    .content(requestContent)
+                    .with(
+                        oauth2Login().attributes { attrs ->
+                            attrs["login"] = "another-user"
+                        },
+                    ),
+            )
+
+        // Then
+        result
+            .andExpect(status().isForbidden)
+    }
+
+    @Test
+    fun `should delete work of art`() {
+        // When
+        val result =
+            mockMvc.perform(
+                delete("/api/woa/${yellowSunset.id.value}").with(
+                    oauth2Login().attributes { attrs ->
+                        attrs["login"] = yellowSunset.userName
+                    },
+                ),
+            )
+
+        // Then
+        result
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$").value(yellowSunset.id.value.toString()))
+
+        // When
+        mockMvc
+            .perform(get("/api/woa/${yellowSunset.id.value}"))
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    fun `should throw error when deleting nonexistent work of art`() {
+        // Given
+        val nonexistentId = BsonObjectId().value.toString()
+
+        // When
+        val result = mockMvc.perform(delete("/api/woa/$nonexistentId"))
+
+        // Then
+        result
+            .andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.message").value("Work of Art not found"))
+    }
+
+    @Test
+    fun `should throw error when deleting another user's work of art`() {
+        // When
+        val result =
+            mockMvc.perform(
+                delete("/api/woa/${yellowSunset.id.value}").with(
+                    oauth2Login().attributes { attrs ->
+                        attrs["login"] = "another-user"
+                    },
+                ),
+            )
+
+        println(result)
+
+        // Then
+        result
+            .andExpect(status().isForbidden)
     }
 }

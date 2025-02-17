@@ -222,6 +222,26 @@ export default function WorkOfArtForm({
     }
   };
 
+  const handleDelete = async () => {
+    if (!workOfArtId) return;
+
+    try {
+      const response = await fetch(`/api/woa/${workOfArtId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        setError(`HTTP error! status: ${response.status}`);
+        return;
+      }
+
+      onSuccess?.();
+      window.location.href = "/feed";
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 mt-24">
       <div className="max-w-2xl mx-auto space-y-6">
@@ -341,6 +361,15 @@ export default function WorkOfArtForm({
           )}
 
           <div style={{ display: "flex", justifyContent: "center" }}>
+            {isEditMode && (
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="mt-4 mr-4 px-4 py-2 bg-red-500 text-white rounded-lg"
+              >
+                Delete
+              </button>
+            )}
             <button
               type="submit"
               disabled={isSubmitting}

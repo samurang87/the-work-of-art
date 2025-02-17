@@ -5,6 +5,7 @@ import de.neuefische.backend.common.toMedium
 import org.bson.BsonObjectId
 import org.bson.types.ObjectId
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Service
 
 @Service
@@ -114,10 +115,15 @@ class WorkOfArtService(
     fun updateWorkOfArt(
         id: String,
         request: WorkOfArtCreateOrUpdateRequest,
+        currentUser: String,
     ): WorkOfArtResponse {
         val existingWorkOfArt =
             workOfArtRepo.findByIdOrNull(id)
                 ?: throw IllegalArgumentException("Work of Art not found")
+
+        if (currentUser != existingWorkOfArt.userName) {
+            throw AccessDeniedException("You can update only your own work of art")
+        }
 
         val updatedWorkOfArt =
             constructWorkOfArt(
@@ -133,5 +139,21 @@ class WorkOfArtService(
 
         val savedWorkOfArt = workOfArtRepo.save(updatedWorkOfArt)
         return workOfArtResponse(savedWorkOfArt)
+    }
+
+    fun deleteWorkOfArt(
+        id: String,
+        currentUser: String,
+    ): String {
+        val existingWorkOfArt =
+            workOfArtRepo.findByIdOrNull(id)
+                ?: throw IllegalArgumentException("Work of Art not found")
+
+        if (currentUser != existingWorkOfArt.userName) {
+            throw AccessDeniedException("You can delete only your own work of art")
+        }
+
+        workOfArtRepo.deleteById(id)
+        return id
     }
 }
