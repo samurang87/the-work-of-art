@@ -57,10 +57,6 @@ function App() {
               element={<ProfilePage loggedInUsername={loggedInUsername} />}
             />
             <Route
-              path="/woa/:workOfArtId?"
-              element={<WorkOfArtPage loggedInUsername={loggedInUsername} />}
-            />
-            <Route
               path="/woa/new"
               element={
                 <NewWorkOfArtPage
@@ -70,6 +66,10 @@ function App() {
               }
             />
           </Route>
+          <Route
+            path="/woa/:workOfArtId?"
+            element={<WorkOfArtPage loggedInUsername={loggedInUsername} />}
+          />
         </Routes>
       </main>
       <Footer />
