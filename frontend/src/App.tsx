@@ -78,11 +78,11 @@ function App() {
                 />
               }
             />
+            <Route
+              path="/woa/:workOfArtId?"
+              element={<WorkOfArtPage loggedInUsername={loggedInUsername} />}
+            />
           </Route>
-          <Route
-            path="/woa/:workOfArtId?"
-            element={<WorkOfArtPage loggedInUsername={loggedInUsername} />}
-          />
         </Routes>
       </main>
       <Footer />
