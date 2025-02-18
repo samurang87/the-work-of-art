@@ -11,6 +11,19 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import NewWorkOfArtPage from "./pages/NewWorkOfArtPage.tsx";
 
+axios.interceptors.response.use(
+  (response) => response,
+  (error: unknown) => {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "/";
+    }
+    return Promise.reject(
+      new Error(error instanceof Error ? error.message : "An error occurred"),
+    );
+  },
+);
+
 function App() {
   const [loggedInUsername, setLoggedInUsername] = useState<
     string | undefined
