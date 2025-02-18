@@ -131,9 +131,15 @@
             <artifactId>kotlin-uploader</artifactId>
             <version>1.10.0</version>
         </dependency>
+        <dependency>
+            <groupId>de.neuefische.java</groupId>
+            <artifactId>spring-boot-starter-fallback-page</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>
+        <finalName>theworkofart</finalName>
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <plugins>

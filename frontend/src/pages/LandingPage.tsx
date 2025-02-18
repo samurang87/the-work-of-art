@@ -9,10 +9,11 @@ export default function LandingPage(userName: LandingPageProps) {
   const navigate = useNavigate();
 
   function login() {
+    const protocol = window.location.protocol;
     const host =
       window.location.host === "localhost:5173"
-        ? "http://localhost:8080"
-        : window.location.host;
+        ? `${protocol}//localhost:8080`
+        : `${protocol}//${window.location.host}`;
     window.open(host + "/oauth2/authorization/github", "_self");
   }
 
