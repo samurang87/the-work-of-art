@@ -26,11 +26,11 @@ class SecurityConfig(
                 it.requestMatchers("/api/status").permitAll()
                 it.anyRequest().permitAll()
             }.sessionManagement {
-                it.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }.exceptionHandling {
                 it.authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
             }.oauth2Login {
-                it.defaultSuccessUrl("$clientUrl/feed")
+                it.defaultSuccessUrl("$clientUrl/feed", true)
             }.logout {
                 it.logoutSuccessUrl(clientUrl)
             }
