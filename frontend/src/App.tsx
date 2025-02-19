@@ -25,10 +25,10 @@ axios.interceptors.response.use(
 );
 
 function App() {
-  const [loggedInUsername, setLoggedInUsername] = useState<
-    string | undefined
-  >();
+  const [loggedInUsername, setLoggedInUsername] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
   const [loggedInUserId, setLoggedInUserId] = useState<string | undefined>();
+
   const navigate = useNavigate();
 
   async function loadUser() {
@@ -40,12 +40,15 @@ function App() {
       setLoggedInUserId(response.data.user);
     } catch (error) {
       console.error("Failed to load user", error);
+      setLoggedInUsername("");
+    } finally {
+      setIsLoading(false);
     }
   }
 
   function logout() {
     localStorage.removeItem("token");
-    setLoggedInUsername(undefined);
+    setLoggedInUsername("");
     setLoggedInUserId(undefined);
     void navigate("/");
   }
@@ -63,7 +66,14 @@ function App() {
             path="/"
             element={<LandingPage username={loggedInUsername} />}
           />
-          <Route element={<ProtectedRoutes username={loggedInUsername} />}>
+          <Route
+            element={
+              <ProtectedRoutes
+                username={loggedInUsername}
+                isLoading={isLoading}
+              />
+            }
+          >
             <Route path="/feed" element={<Feed />} />
             <Route
               path="/user/:username?"
