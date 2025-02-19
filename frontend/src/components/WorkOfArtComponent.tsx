@@ -29,26 +29,25 @@ export default function WorkOfArtComponent({
     <div className="container mx-auto px-4 mt-24">
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg overflow-hidden">
-          {/* User and medium section */}
+          {/* Title and medium */}
           <div className="flex justify-between p-6">
-            <h2 className="text-2xl font-semibold text-gray-800">
-              <a href={`/user/${workOfArt.userName}`}>{workOfArt.userName}</a>
-            </h2>
+            <h3 className="text-2xl font-semibold text-gray-800">
+              <a href={`/woa/${workOfArt.id}`}>{workOfArt.title}</a>
+            </h3>
+
             <p className="text-gray-600">{workOfArt.medium}</p>
           </div>
-
           {/* Image */}
           <img
             src={transformImageUrl(workOfArt.imageUrl)}
             alt={workOfArt.title}
             className="w-full"
           />
-
-          {/* Title and Date */}
+          {/* User and date */}
           <div className="flex justify-between p-6">
-            <h3 className="text-2xl font-semibold text-gray-800">
-              <a href={`/woa/${workOfArt.id}`}>{workOfArt.title}</a>
-            </h3>
+            <h2 className="text-2xl font-semibold text-gray-800">
+              <a href={`/user/${workOfArt.userName}`}>{workOfArt.userName}</a>
+            </h2>
             <p className="text-gray-600">{formatDate(workOfArt.createdAt)}</p>
           </div>
         </div>
