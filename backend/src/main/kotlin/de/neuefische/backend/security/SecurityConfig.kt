@@ -30,7 +30,7 @@ class SecurityConfig(
             }.exceptionHandling {
                 it.authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
             }.oauth2Login {
-                it.defaultSuccessUrl("$clientUrl/feed", true)
+                it.defaultSuccessUrl("$clientUrl/feed")
             }.logout {
                 it.logoutSuccessUrl(clientUrl)
             }
