@@ -72,8 +72,12 @@ export default function WorkOfArtComponent({
                 </h3>
                 {workOfArt.materials.map((material, index) => (
                   <p key={index} className="text-gray-600">
-                    {material.type} {material.identifier} - {material.name} by{" "}
-                    {material.brand} ({material.line})
+                    {material.type}
+                    {material.identifier && ` ${material.identifier}`}
+                    {(material.type || material.identifier) && " - "}
+                    {material.name}
+                    {material.brand && ` by ${material.brand}`}
+                    {material.line && ` (${material.line})`}
                   </p>
                 ))}
               </div>
