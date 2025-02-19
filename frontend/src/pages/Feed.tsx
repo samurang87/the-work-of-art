@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import WorkOfArtComponent from "../components/WorkOfArtComponent";
 import { WorkOfArt } from "../types.tsx";
+import PageContainer from "../components/PageContainer.tsx";
 
 export default function Feed() {
   const [worksOfArt, setWorksOfArt] = useState<WorkOfArt[]>([]);
@@ -24,12 +25,21 @@ export default function Feed() {
     void fetchWorksOfArt();
   }, []);
 
-  if (loading) return <div className="mt-24 text-center">Loading...</div>;
+  if (loading)
+    return (
+      <PageContainer>
+        <div className="mt-24 text-center">Loading...</div>
+      </PageContainer>
+    );
   if (error)
-    return <div className="mt-24 text-center text-red-500">Error: {error}</div>;
+    return (
+      <PageContainer>
+        <div className="mt-24 text-center text-red-500">Error: {error}</div>
+      </PageContainer>
+    );
 
   return (
-    <div className="container mx-auto px-4 mt-24 pb-24">
+    <PageContainer>
       <div className="max-w-2xl mx-auto space-y-6">
         {worksOfArt.map((workOfArt) => (
           <WorkOfArtComponent
@@ -39,6 +49,6 @@ export default function Feed() {
           />
         ))}
       </div>
-    </div>
+    </PageContainer>
   );
 }

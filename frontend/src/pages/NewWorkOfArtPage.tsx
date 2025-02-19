@@ -1,5 +1,6 @@
 import WorkOfArtForm from "../components/WorkOfArtForm.tsx";
 import { useNavigate } from "react-router-dom";
+import PageContainer from "../components/PageContainer.tsx";
 
 export default function NewWorkOfArtPage({
   userId,
@@ -11,7 +12,7 @@ export default function NewWorkOfArtPage({
   const navigate = useNavigate();
 
   return (
-    <div className="container mx-auto px-4 mt-24 pb-24">
+    <PageContainer>
       <WorkOfArtForm
         user={userId}
         userName={username}
@@ -19,6 +20,6 @@ export default function NewWorkOfArtPage({
           void navigate("/feed");
         }}
       />
-    </div>
+    </PageContainer>
   );
 }

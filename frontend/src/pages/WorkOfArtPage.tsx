@@ -4,6 +4,7 @@ import axios from "axios";
 import WorkOfArtComponent from "../components/WorkOfArtComponent.tsx";
 import WorkOfArtForm from "../components/WorkOfArtForm.tsx";
 import { WorkOfArt } from "../types.tsx";
+import PageContainer from "../components/PageContainer.tsx";
 
 type WorkOfArtPageProps = {
   loggedInUsername: string | undefined;
@@ -45,18 +46,29 @@ export default function WorkOfArtPage({
     window.location.href = `/woa/${workOfArtId}`;
   };
 
-  if (loading) return <div className="mt-24 text-center">Loading...</div>;
+  if (loading)
+    return (
+      <PageContainer>
+        <div className="text-center">Loading...</div>
+      </PageContainer>
+    );
   if (error)
-    return <div className="mt-24 text-center text-red-500">Error: {error}</div>;
+    return (
+      <PageContainer>
+        <div className="text-center text-red-500">Error: {error}</div>
+      </PageContainer>
+    );
   if (!workOfArt)
     return (
-      <div className="mt-24 text-center">No work of art data available</div>
+      <PageContainer>
+        <div className="text-center">No work of art data available</div>
+      </PageContainer>
     );
 
   const isOwnProfile = workOfArt.userName === loggedInUsername;
 
   return (
-    <div className="pb-24">
+    <PageContainer>
       {isEditMode ? (
         <WorkOfArtForm
           user={workOfArt.user}
@@ -84,6 +96,6 @@ export default function WorkOfArtPage({
           <WorkOfArtComponent workOfArt={workOfArt} />
         </>
       )}
-    </div>
+    </PageContainer>
   );
 }
