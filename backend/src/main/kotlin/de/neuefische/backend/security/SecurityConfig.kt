@@ -26,7 +26,7 @@ class SecurityConfig(
                 it.requestMatchers("/api/status").permitAll()
                 it.anyRequest().permitAll()
             }.sessionManagement {
-                it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                it.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
             }.exceptionHandling {
                 it.authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
             }.oauth2Login {
