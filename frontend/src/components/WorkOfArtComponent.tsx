@@ -28,38 +28,30 @@ export default function WorkOfArtComponent({
   return (
     <div className="container mx-auto px-4 mt-24">
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* User and Medium Section */}
-        <div className="flex justify-between bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
-          <div>
-            <h2 className="text-2xl font-semibold text-gray-800">
-              <a href={`/user/${workOfArt.userName}`}>{workOfArt.userName}</a>
-            </h2>
-          </div>
-          <div>
-            <p className="text-gray-600">{workOfArt.medium}</p>
-          </div>
-        </div>
-
-        {/* Image Section */}
-        <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
-          <img
-            src={transformImageUrl(workOfArt.imageUrl)}
-            alt={workOfArt.title}
-            className="w-full rounded-lg"
-          />
-        </div>
-
-        {/* Title Section */}
-        <div className="flex justify-between bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
-          <div>
+        <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg overflow-hidden">
+          {/* Title and medium */}
+          <div className="flex justify-between p-6">
             <h3 className="text-2xl font-semibold text-gray-800">
               <a href={`/woa/${workOfArt.id}`}>{workOfArt.title}</a>
             </h3>
+
+            <p className="text-gray-600">{workOfArt.medium}</p>
           </div>
-          <div>
+          {/* Image */}
+          <img
+            src={transformImageUrl(workOfArt.imageUrl)}
+            alt={workOfArt.title}
+            className="w-full"
+          />
+          {/* User and date */}
+          <div className="flex justify-between p-6">
+            <h2 className="text-2xl font-semibold text-gray-800">
+              <a href={`/user/${workOfArt.userName}`}>{workOfArt.userName}</a>
+            </h2>
             <p className="text-gray-600">{formatDate(workOfArt.createdAt)}</p>
           </div>
         </div>
+
         {allFields && (
           <>
             {/* Description Section */}
@@ -80,8 +72,12 @@ export default function WorkOfArtComponent({
                 </h3>
                 {workOfArt.materials.map((material, index) => (
                   <p key={index} className="text-gray-600">
-                    {material.type} {material.identifier} - {material.name} by{" "}
-                    {material.brand} ({material.line})
+                    {material.type}
+                    {material.identifier && ` ${material.identifier}`}
+                    {(material.type || material.identifier) && " - "}
+                    {material.name}
+                    {material.brand && ` by ${material.brand}`}
+                    {material.line && ` (${material.line})`}
                   </p>
                 ))}
               </div>
