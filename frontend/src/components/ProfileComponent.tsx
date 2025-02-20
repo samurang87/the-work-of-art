@@ -116,7 +116,7 @@ export default function UserProfile({
   return (
     <div className="container mx-auto px-4 mt-24">
       <div className="max-w-2xl mx-auto space-y-6">
-        {isOwnProfile && (
+        {isOwnProfile && !isEditing && (
           <div style={{ display: "flex", justifyContent: "center" }}>
             <button
               onClick={handleEdit}
