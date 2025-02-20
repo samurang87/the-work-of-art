@@ -36,19 +36,8 @@ class WorkOfArtService(
             createdAt = woa.createdAt.toString(),
         )
 
-    fun getWorkOfArtById(id: String): WorkOfArtResponse? =
-        workOfArtRepo.findByIdOrNull(id)?.let { workOfArt ->
-            workOfArtResponse(workOfArt)
-        }
-
-    fun getAllWorksOfArt(mediums: List<Medium>? = null): List<WorkOfArtShortResponse> {
-        val worksOfArt =
-            if (mediums.isNullOrEmpty()) {
-                workOfArtRepo.findAll()
-            } else {
-                workOfArtRepo.findAllByMediumIn(mediums)
-            }
-        return worksOfArt
+    private fun workOfArtShortResponses(worksOfArt: List<WorkOfArt>) =
+        worksOfArt
             .sortedByDescending { it.createdAt }
             .map { workOfArt ->
                 WorkOfArtShortResponse(
@@ -61,6 +50,25 @@ class WorkOfArtService(
                     createdAt = workOfArt.createdAt.toString(),
                 )
             }
+
+    fun getWorkOfArtById(id: String): WorkOfArtResponse? =
+        workOfArtRepo.findByIdOrNull(id)?.let { workOfArt ->
+            workOfArtResponse(workOfArt)
+        }
+
+    fun getAllWorksOfArt(mediums: List<Medium>? = null): List<WorkOfArtShortResponse> {
+        val worksOfArt =
+            if (mediums.isNullOrEmpty()) {
+                workOfArtRepo.findAll()
+            } else {
+                workOfArtRepo.findAllByMediumIn(mediums)
+            }
+        return workOfArtShortResponses(worksOfArt)
+    }
+
+    fun getAllWorksOfArtByUser(user: String): List<WorkOfArtShortResponse> {
+        val worksOfArt = workOfArtRepo.findAllByUser(BsonObjectId(ObjectId(user)))
+        return workOfArtShortResponses(worksOfArt)
     }
 
     private fun constructWorkOfArt(

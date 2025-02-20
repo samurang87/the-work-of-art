@@ -36,18 +36,19 @@ class WorkOfArtController(
         }
     }
 
-    @GetMapping()
+    @GetMapping
     fun getAllWorksOfArt(
         @RequestParam(required = false) mediums: List<String>?,
-    ): ResponseEntity<List<WorkOfArtShortResponse>> {
-        if (mediums.isNullOrEmpty()) {
-            val worksOfArt = workOfArtService.getAllWorksOfArt()
-            return ResponseEntity.ok(worksOfArt)
+        @RequestParam(required = false) userId: String?,
+    ): ResponseEntity<List<WorkOfArtShortResponse>> =
+        when {
+            userId != null -> ResponseEntity.ok(workOfArtService.getAllWorksOfArtByUser(userId))
+            mediums != null -> {
+                val foundMediums: List<Medium> = mediums.mapNotNull { it.toMedium() }
+                ResponseEntity.ok(workOfArtService.getAllWorksOfArt(foundMediums))
+            }
+            else -> ResponseEntity.ok(workOfArtService.getAllWorksOfArt())
         }
-        val foundMediums: List<Medium> = mediums.mapNotNull { it.toMedium() }
-        val worksOfArt = workOfArtService.getAllWorksOfArt(foundMediums)
-        return ResponseEntity.ok(worksOfArt)
-    }
 
     @PostMapping()
     fun createWorkOfArt(
