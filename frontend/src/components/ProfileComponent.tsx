@@ -117,9 +117,14 @@ export default function UserProfile({
     <div className="container mx-auto px-4 mt-24">
       <div className="max-w-2xl mx-auto space-y-6">
         {isOwnProfile && (
-          <button onClick={handleEdit} className="text-blue-500">
-            Edit 📝
-          </button>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <button
+              onClick={handleEdit}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
+            >
+              Edit
+            </button>
+          </div>
         )}
         {/* Profile Section */}
         <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
@@ -174,9 +179,14 @@ export default function UserProfile({
         </div>
 
         {isEditing && (
-          <button onClick={() => void handleSave()} className="text-blue-500">
-            Save
-          </button>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <button
+              onClick={() => void handleSave()}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
+            >
+              Save
+            </button>
+          </div>
         )}
 
         {/* Works of Art Section */}
