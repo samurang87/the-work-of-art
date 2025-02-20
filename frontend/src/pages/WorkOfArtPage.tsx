@@ -83,7 +83,7 @@ export default function WorkOfArtPage({
         />
       ) : (
         <>
-          {isOwnProfile && (
+          {isOwnProfile && !isEditMode && (
             <div style={{ display: "flex", justifyContent: "center" }}>
               <button
                 onClick={() => setIsEditMode(true)}
