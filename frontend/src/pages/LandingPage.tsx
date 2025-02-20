@@ -29,7 +29,17 @@ export default function LandingPage(userName: LandingPageProps) {
 
   return (
     <PageContainer>
-      <div className="flex justify-center">
+      <div className="flex flex-col items-center">
+        <div className="text-center mb-8">
+          <p className="text-6xl mb-8">🎨</p>
+          <h1 className="text-4xl font-bold mb-4">
+            Welcome to The Work of Art!
+          </h1>
+          <p className="text-xl text-gray-700 max-w-2xl mx-auto">
+            Showcase your masterpieces, share your techniques, and engage in
+            creative art challenges.
+          </p>
+        </div>
         <button
           onClick={login}
           type="button"
