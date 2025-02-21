@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { User, UserEditRequestPayload, Medium } from "../types.tsx";
+import { User, UserEditRequestPayload, Medium, WorkOfArt } from "../types";
+import WorkOfArtComponent from "../components/WorkOfArtComponent";
 
 type UserProfileProps = {
   username?: string;
@@ -12,7 +13,9 @@ export default function UserProfile({
   loggedInUsername,
 }: UserProfileProps) {
   const [user, setUser] = useState<User | null>(null);
+  const [worksOfArt, setWorksOfArt] = useState<WorkOfArt[]>([]);
   const [loading, setLoading] = useState(true);
+  const [worksLoading, setWorksLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<User | null>(null);
@@ -43,6 +46,28 @@ export default function UserProfile({
 
     void fetchUser(username);
   }, [username]);
+
+  useEffect(() => {
+    async function fetchUserWorks(userId: string) {
+      setWorksLoading(true);
+      try {
+        const response = await axios.get<WorkOfArt[]>("/api/woa", {
+          params: { userId },
+        });
+        // Type assertion for response.data
+        const works = response.data;
+        setWorksOfArt(works);
+      } catch (error) {
+        setError(error instanceof Error ? error.message : String(error));
+      } finally {
+        setWorksLoading(false);
+      }
+    }
+
+    if (user?.id) {
+      void fetchUserWorks(user.id);
+    }
+  }, [user?.id]);
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -91,10 +116,15 @@ export default function UserProfile({
   return (
     <div className="container mx-auto px-4 mt-24">
       <div className="max-w-2xl mx-auto space-y-6">
-        {isOwnProfile && (
-          <button onClick={handleEdit} className="text-blue-500">
-            Edit 📝
-          </button>
+        {isOwnProfile && !isEditing && (
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <button
+              onClick={handleEdit}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
+            >
+              Edit
+            </button>
+          </div>
         )}
         {/* Profile Section */}
         <div className="bg-white/80 backdrop-blur-sm shadow-sm rounded-lg p-6">
@@ -149,10 +179,37 @@ export default function UserProfile({
         </div>
 
         {isEditing && (
-          <button onClick={() => void handleSave()} className="text-blue-500">
-            Save
-          </button>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <button
+              onClick={() => void handleSave()}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg"
+            >
+              Save
+            </button>
+          </div>
         )}
+
+        {/* Works of Art Section */}
+        <div className="bg-white/20 backdrop-blur-sm shadow-sm rounded-lg p-6">
+          <h2 className="mt-8 text-2xl font-semibold text-gray-800 mb-4 text-center">
+            Works of Art
+          </h2>
+          {worksLoading ? (
+            <div className="text-center">Loading works...</div>
+          ) : worksOfArt.length > 0 ? (
+            <div className="space-y-6">
+              {worksOfArt.map((work: WorkOfArt) => (
+                <WorkOfArtComponent
+                  key={work.id}
+                  workOfArt={work}
+                  allFields={false}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600">No works of art yet 🎨</p>
+          )}
+        </div>
       </div>
     </div>
   );

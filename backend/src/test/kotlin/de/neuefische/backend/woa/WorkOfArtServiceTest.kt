@@ -7,6 +7,7 @@ import io.mockk.verify
 import org.bson.BsonObjectId
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.springframework.data.repository.findByIdOrNull
@@ -33,6 +34,15 @@ class WorkOfArtServiceTest {
             brand = "Schmincke",
             line = "Akademie",
             type = "Tube",
+            medium = Medium.WATERCOLORS,
+        )
+    private val violet23 =
+        Material(
+            name = "Violet",
+            identifier = "23",
+            brand = "Schmincke",
+            line = "Akademie",
+            type = "Full Pan",
             medium = Medium.WATERCOLORS,
         )
     private val paintbrush =
@@ -67,17 +77,33 @@ class WorkOfArtServiceTest {
             medium = Medium.PAN_PASTELS,
         )
 
+    private val redMiddayUserId = BsonObjectId()
+    private val redMiddayUserName = "jane_snow"
+
     private val redMidday =
         WorkOfArt(
             id = BsonObjectId(),
-            user = BsonObjectId(),
+            user = redMiddayUserId,
             challengeId = BsonObjectId(),
-            userName = "jane_snow",
+            userName = redMiddayUserName,
             title = "Red Midday",
             description = "a red midday",
             imageUrl = "https://example.com/red-midday.jpg",
             medium = Medium.WATERCOLORS,
             materials = listOf(scarletRed12, paintbrush),
+        )
+
+    private val violetStarlight =
+        WorkOfArt(
+            id = BsonObjectId(),
+            user = redMiddayUserId,
+            challengeId = BsonObjectId(),
+            userName = redMiddayUserName,
+            title = "Violet Starlight",
+            description = "a night brightened by stars",
+            imageUrl = "https://example.com/violet-starlight.jpg",
+            medium = Medium.WATERCOLORS,
+            materials = listOf(violet23, paintbrush),
         )
 
     @Test
@@ -146,7 +172,7 @@ class WorkOfArtServiceTest {
     }
 
     @Test
-    fun `should return all works of art when no mediums specified`() {
+    fun `should return all works of art when no mediums or user specified`() {
         // Given
         val expectedResponse =
             listOf(
@@ -229,6 +255,58 @@ class WorkOfArtServiceTest {
 
         // Then
         assertEquals(expectedResponse, result)
+    }
+
+    @Test
+    fun `should return all works of art with specified user`() {
+        // Given
+        val expectedResponse =
+            listOf(
+                WorkOfArtShortResponse(
+                    id = violetStarlight.id.value.toString(),
+                    user = redMidday.user.value.toString(),
+                    userName = "jane_snow",
+                    title = "Violet Starlight",
+                    imageUrl = "https://example.com/violet-starlight.jpg",
+                    medium = "watercolors",
+                    createdAt = violetStarlight.createdAt.toString(),
+                ),
+                WorkOfArtShortResponse(
+                    id = redMidday.id.value.toString(),
+                    user = redMidday.user.value.toString(),
+                    userName = "jane_snow",
+                    title = "Red Midday",
+                    imageUrl = "https://example.com/red-midday.jpg",
+                    medium = "watercolors",
+                    createdAt = redMidday.createdAt.toString(),
+                ),
+            )
+
+        every { workOfArtRepo.findAllByUser(redMiddayUserId) } returns
+            listOf(
+                redMidday,
+                violetStarlight,
+            )
+
+        // When
+        val result =
+            workOfArtService.getAllWorksOfArtByUser(redMiddayUserId.value.toString())
+
+        // Then
+        assertEquals(expectedResponse, result)
+    }
+
+    @Test
+    fun `should return nothing when user has not published anything`() {
+        // Given
+        val userId = BsonObjectId()
+        every { workOfArtRepo.findAllByUser(userId) } returns emptyList()
+
+        // When
+        val result = workOfArtService.getAllWorksOfArtByUser(userId.value.toString())
+
+        // Then
+        assertTrue(result.isEmpty())
     }
 
     @Test
